@@ -1,70 +1,25 @@
-// Utility function for generating white noise heightmap
-export function generateWhiteNoise(width: number, height: number): Float32Array {
-  const size = width * height;
-  const data = new Float32Array(size);
+
+export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, scaleV: number = 1, exponent: number = 1): Float32Array {
+  const data = new Float32Array(size * size);
   
-  for (let i = 0; i < size; i++) {
-    data[i] = Math.random() * 10; // Scale factor of 10 for more pronounced heights
-  }
-  
-  return data;
-}
+  const ptable: number[] = shuffle(seed, Array.from({ length: 256 }, (_, i) => i));
+  console.log(ptable);
 
-export function flat(width: number, height: number): Float32Array {
-  const size = width * height;
-  const data = new Float32Array(size);
-  
-  for (let i = 0; i < size; i++) {
-    data[i] = i;
-  }
-  
-  return data;
-}
-
-function interpolatedNoise2D(x: number, y: number, seed: number): number {
-  const integerX = Math.floor(x);
-  const fractionalX = x - integerX;
-  const integerY = Math.floor(y);
-  const fractionalY = y - integerY;
-
-  const v1 = noise2D(integerX, integerY, seed);
-  const v2 = noise2D(integerX + 1, integerY, seed);
-  const v3 = noise2D(integerX, integerY + 1, seed);
-  const v4 = noise2D(integerX + 1, integerY + 1, seed);
-
-  const i1 = interpolate(v1, v2, fractionalX);
-  const i2 = interpolate(v3, v4, fractionalX);
-
-  return interpolate(i1, i2, fractionalY);
-}
-
-function noise2D(x: number, y: number, seed: number): number {
-  return Math.sin((x * 12.9898 + y * 78.233 + seed) * 43758.5453) * 0.5 + 0.5;
-}
-
-function interpolate(a: number, b: number, x: number): number {
-  const ft = x * 3.1415927;
-  const f = (1 - Math.cos(ft)) * 0.5;
-  return  a * (1 - f) + b * f;
-}
-
-export function perlinMap(w: number, h: number, seed: number): Float32Array {
-  const data = new Float32Array(w * h);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      data[y * w + x] = perlin(x / 50, y / 50, seed);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      data[y * size + x] = ( perlin(x / 50 * scaleH, y / 50 * scaleH, ptable) * scaleV ) ** exponent;
     }
   }
   return data;
 }
 
-function perlin(x: number, y: number, seed: number = 0): number {
+function perlin(x: number, y: number, ptable: number[]): number {
     // create a permutation table based on the number of pixels
     // seed is the initial value we want to start with
     // we also use the seed function to get the same set of numbers
     // this helps to keep our Perlin graph smooth
 
-    let ptable: number[] = Array.from({ length: 256 }, (_, i) => i);
+    
   
     // shuffle our numbers in the table
     ptable.sort(() => Math.random() - 0.5);
@@ -115,4 +70,20 @@ function gradient(c: number, x: number, y: number): number {
     const gradient_co: number[] = vectors[c % 4];
   
     return gradient_co[0] * x + gradient_co[1] * y;
+}
+
+function shuffle(seed: number, array: number[]) {
+  const random = {
+    seed: seed,
+    next: function() {
+      const x = Math.sin(this.seed++) * 10000;
+      return x - Math.floor(x);
+    }
+  };
+
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(random.next() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
