@@ -8,7 +8,7 @@ export const Terrain: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
   
   const geometry = useMemo(() => {
     const size = 100;
-    const segments = 256;
+    const segments = 255;
     const geo = new THREE.PlaneGeometry(size, size, segments, segments);
     
     ch.heightMapConsumer = (heightMap: Float32Array) => {
@@ -17,6 +17,7 @@ export const Terrain: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
         vertices[i * 3 + 2] = heightMap[i];
       }
       geo.computeVertexNormals();
+      geo.attributes.position.needsUpdate = true;
     };
 
     return geo;
