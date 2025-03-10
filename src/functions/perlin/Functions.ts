@@ -1,7 +1,7 @@
 'use strict';
 import Rand from "rand-seed";
 
-export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, scaleV: number = 1, exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5): Float32Array {
+export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5): Float32Array {
   const data = new Float32Array(size * size);
   
   // create a permutation table based on the number of pixels
@@ -16,20 +16,23 @@ export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, sc
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      data[x * size + y] = ( octave(x / scaleH, y / scaleH, ptable, octaves, lacunarity, persistence, exponent)) * scaleV;
+      data[x * size + y] = ( octave(x / scaleH, y / scaleH, ptable, octaves, lacunarity, persistence, rawScaleV, rawShift, exponent)) * scaleV;
     }
   }
   return data;
 }
 
-function octave(x: number, y: number, ptable: number[], octaves: number, lacunarity: number, persistence: number, exponent: number) {
+function octave(x: number, y: number, ptable: number[], octaves: number, lacunarity: number, persistence: number, rawScaleV: number, rawShift: number, exponent: number) {
   // apply the octaves and lacunarity
   let sum: number = 0;
   let frequency: number = 1;
   let amplitude: number = 1;
 
   for (let i = 0; i < octaves; i++) {
-    sum += (perlin(x * frequency, y * frequency, ptable)) * amplitude;
+    const v: number = perlin(x * frequency, y * frequency, ptable);
+    if (v < 0) console.log(v);
+    if (v > 2) console.log(v);
+    sum += ((v * rawScaleV + rawShift) ** exponent) * amplitude;
     frequency *= lacunarity;
     amplitude *= persistence;
   }
@@ -49,26 +52,6 @@ function perlin(x: number, y: number, ptable: number[]): number {
     // apply fade function to distance coordinates
     const xf: number = fade(xg);
     const yf: number = fade(yg);
-  
-    // if (ptable[ptable[xi] + yi] === undefined) {
-    //   console.log(xi, ptable[xi] + yi);
-    // }
-    // if (ptable[ptable[xi] + yi + 1] === undefined) {
-    //   console.log(xi, ptable[xi] + yi + 1);
-    // }
-    // if (ptable[ptable[xi + 1] + yi + 1] === undefined) {
-    //   console.log(xi, ptable[xi + 1] + yi + 1);
-    // }
-    // if (ptable[ptable[xi + 1] + yi] === undefined) {
-    //   console.log(xi, ptable[xi + 1] + yi);
-    // }
-    //console.log(ptable[xi] + yi, ptable[xi] + yi + 1, ptable[xi + 1] + yi + 1, ptable[xi + 1] + yi);         
-
-    // the gradient vector coordinates in the top left, top right, bottom left, bottom right
-    // const n00: number = gradient(ptable[(ptable[xi % 256] + yi) % 512], xg, yg);
-    // const n01: number = gradient(ptable[(ptable[xi % 256] + yi + 1) % 512], xg, yg - 1);
-    // const n11: number = gradient(ptable[(ptable[(xi + 1) % 256] + yi + 1) % 512], xg - 1, yg - 1);
-    // const n10: number = gradient(ptable[(ptable[(xi + 1) % 256] + yi) % 512], xg - 1, yg);
   
     const n00: number = gradient(ptable[(ptable[xi % 512] + yi) % 512], xg, yg);
     const n01: number = gradient(ptable[(ptable[xi % 512] + yi + 1) % 512], xg, yg - 1);
@@ -101,6 +84,7 @@ function gradient(c: number, x: number, y: number): number {
     return gradient_co[0] * x + gradient_co[1] * y;
 }
 
+// generate permutation table
 function genPtable(seed: number) {
   const random = new Rand(seed.toString());
   const array = Array.from({ length: 512 }, (_, i) => i).sort(() => random.next() - 0.5);
