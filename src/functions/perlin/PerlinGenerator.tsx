@@ -5,8 +5,6 @@ import { ConsumerHolder } from '../ConsumerHolder';
 export const PerlinGenerator: React.FC<{
   ch: ConsumerHolder;
 }> = ({ ch }) => {
-
-  const size = 256;
   
   const [seed, setSeed] = useState(0);
   const [scale, setScale] = useState(0.2);
@@ -66,7 +64,7 @@ export const PerlinGenerator: React.FC<{
   
   const update = () => {
     console.log("Updating Height Map")
-    ch.heightMapConsumer(perlinMap(size, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence));
+    ch.heightMapConsumer(perlinMap(seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence));
   }
 
   
@@ -74,8 +72,6 @@ export const PerlinGenerator: React.FC<{
     <div>
       <label>Seed:</label>
       <input type="number" value={seed} onChange={handleSeedChange} style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      {/* <label>Size:</label>
-      <input type="number" min="16" max="2048" step="1" value={size} onChange={handleSizeChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} /> */}
       <label>Scale:</label>
       <input type="number" min="0" max="10" step="0.02" value={scale} onChange={handleScaleChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
       <label>Scale horizontal:</label>

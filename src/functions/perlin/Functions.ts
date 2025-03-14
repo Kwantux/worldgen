@@ -1,8 +1,15 @@
 'use strict';
 import Rand from "rand-seed";
 
-export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5): Float32Array {
-  const data = new Float32Array(size * size);
+const SIZE = 256;
+
+export function perlinMapFunction(seed: number, scaleH: number, scaleV: number, rawScaleV: number, rawShift: number, exponent: number) {
+  return (x: number, y: number, scale: number, octaves: number, lacunarity: number, persistence: number) => { 
+    return perlinMap(x, y, seed, scale * scaleH, scale * scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+  }
+}
+export function perlinMap(x_tile: number, y_tile: number, seed: number = 0, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5): Float32Array {
+  const data = new Float32Array(SIZE * SIZE);
   
   // create a permutation table based on the number of pixels
   // seed is the initial value we want to start with
@@ -14,9 +21,9 @@ export function perlinMap(size: number, seed: number = 0, scaleH: number = 1, sc
   const ptable = genPtable(seed);
   console.log(ptable);
 
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      data[x * size + y] = ( octave(x / scaleH, y / scaleH, ptable, octaves, lacunarity, persistence, rawScaleV, rawShift, exponent)) * scaleV;
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      data[x * SIZE + y] = ( octave((x+SIZE*x_tile) / scaleH, (y+SIZE*y_tile) / scaleH, ptable, octaves, lacunarity, persistence, rawScaleV, rawShift, exponent)) * scaleV;
     }
   }
   return data;
@@ -88,5 +95,5 @@ function gradient(c: number, x: number, y: number): number {
 function genPtable(seed: number) {
   const random = new Rand(seed.toString());
   const array = Array.from({ length: 512 }, (_, i) => i).sort(() => random.next() - 0.5);
-  return array//[].concat(...array.map(val => [val, val]));
+  return array;
 }
