@@ -9,7 +9,7 @@ export const PerlinGenerator: React.FC<{
   const size = 256;
   
   const [seed, setSeed] = useState(0);
-  const [scale, setScale] = useState(0.2);
+  const [scale, setScale] = useState(1);
   const [scaleH, setScaleH] = useState(1);
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
