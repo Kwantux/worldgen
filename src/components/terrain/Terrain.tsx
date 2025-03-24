@@ -20,6 +20,8 @@ export const Terrain: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
       geo.attributes.position.needsUpdate = true;
     };
 
+    ch.updateFunction();
+
     return geo;
   }, [ch]);
 

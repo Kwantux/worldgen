@@ -73,6 +73,8 @@ export const PerlinGenerator: React.FC<{
     update();
   }, [update]);
 
+  ch.updateFunction = update;
+
   
   return (
     <div>
