@@ -28,7 +28,7 @@ function octave(x: number, y: number, ptable: number[], octaves: number, lacunar
   let frequency: number = 1;
   let amplitude: number = 1;
 
-  for (let i = 0; i < octaves; i++) {
+  for (let i = 0; i <= octaves; i++) {
     const v: number = perlin(x * frequency, y * frequency, ptable);
     if (v < 0) console.log(v);
     if (v > 2) console.log(v);
