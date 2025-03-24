@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { perlinMap } from './Functions';
 import { ConsumerHolder } from '../ConsumerHolder';
 
@@ -64,10 +64,14 @@ export const PerlinGenerator: React.FC<{
     update();
   }
   
-  const update = () => {
+  const update = useCallback(() => {
     console.log("Updating Height Map")
     ch.heightMapConsumer(perlinMap(size, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence));
-  }
+  }, [seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence]);
+
+  useEffect(() => {
+    update();
+  }, [update]);
 
   
   return (
