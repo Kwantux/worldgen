@@ -67,7 +67,7 @@ export const PerlinGenerator: React.FC<{
   const update = useCallback(() => {
     console.log("Updating Height Map")
     ch.consumeHeight(perlinMap(size, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence));
-  }, [seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence]);
+  }, [ch, seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence]);
 
   useEffect(() => {
     update();
