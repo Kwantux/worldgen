@@ -1,6 +1,8 @@
 import { ConsumerHolder } from "./functions/ConsumerHolder";
 import { World } from "./components/World";
 import { PerlinGenerator } from "./functions/perlin/PerlinGenerator";
+import { BiomeByHeight } from "./functions/biomebyheight/BiomeByHeight";
+import { ColorByBiome } from "./functions/colorbybiome/ColorByBiome";
 
 const App = () => {
 
@@ -22,8 +24,9 @@ const App = () => {
           <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
             <h1 style={{ marginBottom: '16px' }}>Biome</h1>
             <select style={{ width: '100%', padding: '8px', marginBottom: '16px' , backgroundColor: '#2b2a33'}}>
-              <option value="perlin">None</option>
+              <option value="perlin">Biome by height</option>
             </select>
+            <BiomeByHeight ch={ch}/>
           </div>
 
           <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -36,8 +39,9 @@ const App = () => {
           <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
             <h1 style={{ marginBottom: '16px' }}>Material</h1>
             <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}>
-              <option value="perlin">None</option>
+              <option value="perlin">Color by biome</option>
             </select>
+            <ColorByBiome ch={ch}/>
           </div>
 
 
