@@ -6,18 +6,18 @@ export const PerlinGenerator: React.FC<{
   ch: ConsumerHolder;
 }> = ({ ch }) => {
 
-  const size = 256;
+  const size = 512;
   
   const [seed, setSeed] = useState(0);
   const [scale, setScale] = useState(1);
-  const [scaleH, setScaleH] = useState(1);
+  const [scaleH, setScaleH] = useState(2);
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
   const [rawShift, setRawShift] = useState(0);
   const [exponent, setExponent] = useState(3);
   const [octaves, setOctaves] = useState(5);
-  const [lacunarity, setLacunarity] = useState(0.3);
-  const [persistence, setPersistence] = useState(4);
+  const [lacunarity, setLacunarity] = useState(0.4);
+  const [persistence, setPersistence] = useState(3.5);
 
   const handleSeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSeed(e.target.valueAsNumber);

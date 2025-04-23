@@ -7,8 +7,8 @@ export const Terrain: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
   const mesh = useRef<THREE.Mesh>(null);
   
   const geometry = useMemo(() => {
-    const size = 100;
-    const segments = 255;
+    const size = 250;
+    const segments = 511;
     const geo = new THREE.PlaneGeometry(size, size, segments, segments);
     
     ch.heightMapConsumer = (heightMap: Float32Array) => {
