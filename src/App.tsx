@@ -6,6 +6,9 @@ import { BiomeByHeight } from "./functions/biomebyheight/BiomeByHeight";
 import { ColorByBiome } from "./functions/colorbybiome/ColorByBiome";
 import { ColorByHeight } from "./functions/colorbyheight/ColorByHeight";
 import { NoPostProcessing } from "./functions/nopostprocessing/NoPostProcessing";
+import { SimpleSmoothing } from "./functions/simplesmoothing/SimpleSmoothing";
+import { SmoothBySteepness } from "./functions/smoothbysteepness/SmoothBySteepness";
+import { SmoothByHeight } from "./functions/smoothbyheight/SmoothByHeight";
 
 const App = () => {
 
@@ -68,9 +71,21 @@ const App = () => {
                 value={postProcessing} onChange={handlePostProcessingChange}
               >
                 <option value="none">None</option>
+                <option value="simplesmoothing">Simple smoothing</option>
+                <option value="smoothbysteepness">Smooth by steepness</option>
+                <option value="smoothbyheight">Smooth by height</option>
               </select>
               {postProcessing === "none" && (
                 <NoPostProcessing fh={fh} />
+              )}
+              {postProcessing === "simplesmoothing" && (
+                <SimpleSmoothing fh={fh} />
+              )}
+              {postProcessing === "smoothbysteepness" && (
+                <SmoothBySteepness fh={fh} />
+              )}
+              {postProcessing === "smoothbyheight" && (
+                <SmoothByHeight fh={fh} />
               )}
             </div>
 

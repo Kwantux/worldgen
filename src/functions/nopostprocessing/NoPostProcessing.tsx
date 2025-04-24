@@ -9,7 +9,6 @@ export const NoPostProcessing: React.FC<{
 
   return (
     <div>
-      {/* Add UI elements to control the post-processing algorithm if needed */}
     </div>
   );
 };
