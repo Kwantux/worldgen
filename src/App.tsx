@@ -5,6 +5,7 @@ import { PerlinGenerator } from "./functions/perlin/PerlinGenerator";
 import { BiomeByHeight } from "./functions/biomebyheight/BiomeByHeight";
 import { ColorByBiome } from "./functions/colorbybiome/ColorByBiome";
 import { ColorByHeight } from "./functions/colorbyheight/ColorByHeight";
+import { NoPostProcessing } from "./functions/nopostprocessing/NoPostProcessing";
 
 const App = () => {
 
@@ -12,6 +13,7 @@ const App = () => {
 
   const [heightMapGenerator, setHeightMapGenerator] = useState("perlin");
   const [biomeGenerator, setBiomeGenerator] = useState("biomebyheight");
+  const [postProcessing, setPostProcessing] = useState('none');
   const [colorGenerator, setColorGenerator] = useState("colorbybiome");
 
   const [worldRendered, setWorldRendered] = useState(false);
@@ -23,6 +25,10 @@ const App = () => {
   const handleBiomeGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setBiomeGenerator(event.target.value);
   };
+
+  const handlePostProcessingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPostProcessing(event.target.value);
+  }
   
   const handleColorGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setColorGenerator(event.target.value);
@@ -59,9 +65,13 @@ const App = () => {
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
               <h1 style={{ marginBottom: '16px' }}>Post Processing</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={postProcessing} onChange={handlePostProcessingChange}
               >
                 <option value="none">None</option>
               </select>
+              {postProcessing === "none" && (
+                <NoPostProcessing fh={fh} />
+              )}
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
