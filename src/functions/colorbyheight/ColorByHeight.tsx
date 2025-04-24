@@ -1,17 +1,12 @@
-import { useCallback } from 'react';
 import { colorByHeight } from './Functions';
-import { ConsumerHolder } from '../ConsumerHolder';
+import { FunctionHolder } from '../FunctionHolder';
 
 export const ColorByHeight: React.FC<{
-  ch: ConsumerHolder;
-}> = ({ ch }) => {
+  fh: FunctionHolder;
+}> = ({ fh }) => {
 
-  const heightConsumer = useCallback((height: Float32Array) => {
-    ch.consumeColor(colorByHeight(height));
-  }, [ch]);
+  fh.setColorGenerator("colorbyheight", colorByHeight);
 
-  ch.addHeightConsumer("color", heightConsumer);
-  
   return (
     <div>
     </div>

@@ -1,16 +1,11 @@
-import { useCallback } from 'react';
 import { biomeByHeight } from './Functions';
-import { ConsumerHolder } from '../ConsumerHolder';
+import { FunctionHolder } from '../FunctionHolder';
 
 export const BiomeByHeight: React.FC<{
-  ch: ConsumerHolder;
-}> = ({ ch }) => {
+  fh: FunctionHolder;
+}> = ({ fh }) => {
 
-  const heightConsumer = useCallback((heightMap: Float32Array) => {
-    ch.consumeBiome(biomeByHeight(heightMap));
-  }, [ch]);
-
-  ch.addHeightConsumer("biome",heightConsumer);
+  fh.setBiomeGenerator("biomebyheight", biomeByHeight);
   
   return (
     <div>

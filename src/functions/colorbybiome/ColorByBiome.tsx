@@ -1,30 +1,28 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { colorByBiome } from './Functions';
-import { ConsumerHolder } from '../ConsumerHolder';
+import { FunctionHolder } from '../FunctionHolder';
 
 export const ColorByBiome: React.FC<{
-  ch: ConsumerHolder;
-}> = ({ ch }) => {
+  fh: FunctionHolder;
+}> = ({ fh }) => {
 
   const [blendRadius, setBlendRadius] = useState(5);
-  
-  const biomeMapCachedRef = useRef(new Int16Array(512 * 512));
 
-  const biomeConsumerDirect = useCallback((biomeMap: Int16Array, blendRadius: number) => {
-    ch.consumeColor(colorByBiome(biomeMap, blendRadius));
-  }, [ch]);
-
-  const biomeConsumer = useCallback((biomeMap: Int16Array) => {
-    biomeMapCachedRef.current = biomeMap as Int16Array<ArrayBuffer>;
-    biomeConsumerDirect(biomeMap, blendRadius);
-  }, [biomeConsumerDirect, blendRadius]);
+  const updateGenerator = useCallback((blendRadius: number) => {
+    const hash = "colorbybiome " + blendRadius;
+    fh.setColorGenerator(hash,
+    (heightMap: Float32Array, biomeMap: Int16Array) => {
+      return colorByBiome(biomeMap, blendRadius);
+    }
+    );
+  }, [fh]);
   
   const handleBlendRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBlendRadius(e.target.valueAsNumber);
-    biomeConsumerDirect(biomeMapCachedRef.current, e.target.valueAsNumber);
+    updateGenerator(e.target.valueAsNumber);
   };
-
-  ch.addBiomeConsumer("color", biomeConsumer);
+  
+  updateGenerator(blendRadius);
   
   return (
     <div>

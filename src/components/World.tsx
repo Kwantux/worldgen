@@ -3,11 +3,11 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Terrain } from './terrain/Terrain';
 import { FlyingCamera } from './controls/FlyingCamera';
-import { ControlsOverlay } from './ui/ControlsOverlay';
 import { Lighting } from './scene/Lighting';
-import { ConsumerHolder } from '../functions/ConsumerHolder';
+import { FunctionHolder } from '../functions/FunctionHolder';
 
-export const World: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
+export const World: React.FC<{ fh: FunctionHolder; onLoad?: () => void }> = ({ fh, onLoad }) => {
+
   return (
     <div className="w-full h-screen">
       <Canvas
@@ -18,8 +18,8 @@ export const World: React.FC<{ ch: ConsumerHolder }> = ({ ch }) => {
         <Lighting />
         <FlyingCamera />
         <OrbitControls enableZoom={true} enablePan={true} />
-        <Terrain ch={ch} />
-        {/* <fog attach="fog" args={['#17171b', 30, 100]} /> */}
+        <Terrain fh={fh} onLoad={onLoad} />
+        {/* <fog attafh="fog" args={['#17171b', 30, 100]} /> */}
       </Canvas>
       {/* <ControlsOverlay /> */}
     </div>

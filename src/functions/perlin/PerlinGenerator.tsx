@@ -1,13 +1,12 @@
 import { useState, useCallback } from 'react';
 import { perlinMap } from './Functions';
-import { ConsumerHolder } from '../ConsumerHolder';
+import { FunctionHolder } from '../FunctionHolder';
+import { SEGMENTS } from '../../components/terrain/Terrain';
 
 export const PerlinGenerator: React.FC<{
-  ch: ConsumerHolder;
-}> = ({ ch }) => {
+  fh: FunctionHolder;
+}> = ({ fh }) => {
 
-  const size = 512;
-  
   const [seed, setSeed] = useState(0);
   const [scale, setScale] = useState(1);
   const [scaleH, setScaleH] = useState(2);
@@ -19,102 +18,57 @@ export const PerlinGenerator: React.FC<{
   const [lacunarity, setLacunarity] = useState(0.4);
   const [persistence, setPersistence] = useState(3.5);
 
-  // const handleSeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setSeed(e.target.valueAsNumber);
-  //   update();
-  // };
-
-  // const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setScale(e.target.valueAsNumber);
-  //   update();
-  // };
-
-  // const handleScaleHChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setScaleH(e.target.valueAsNumber);
-  //   update();
-  // }
-  // const handleScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setScaleV(e.target.valueAsNumber);
-  //   update();
-  // }
-
-  // const handleRawScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setRawScaleV(e.target.valueAsNumber);
-  //   update();
-  // }
-
-  // const handleRawShiftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setRawShift(e.target.valueAsNumber);
-  //   update();
-  // }
-  // const handleExponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setExponent(e.target.valueAsNumber);
-  //   update();
-  // }
-  // const handleOctavesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setOctaves(e.target.valueAsNumber);
-  //   update();
-  // }
-  // const handleLacunarityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setLacunarity(e.target.valueAsNumber);
-  //   update();
-  // }
-  // const handlePersistenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setPersistence(e.target.valueAsNumber);
-  //   update();
-  // }
-  
   const handleSeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSeed(e.target.valueAsNumber);
-    updateDirectly(e.target.valueAsNumber, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+    updateFunction(e.target.valueAsNumber, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
   };
 
   const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScale(e.target.valueAsNumber);
-    updateDirectly(seed, e.target.valueAsNumber, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+    updateFunction(seed, e.target.valueAsNumber, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
   };
   
   const handleScaleHChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScaleH(e.target.valueAsNumber);
-    updateDirectly(seed, scale, e.target.valueAsNumber, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+    updateFunction(seed, scale, e.target.valueAsNumber, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
   };
   
   const handleScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScaleV(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, e.target.valueAsNumber, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+    updateFunction(seed, scale, scaleH, e.target.valueAsNumber, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
   };
   
   const handleRawScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRawScaleV(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, e.target.valueAsNumber, rawShift, exponent, octaves, lacunarity, persistence);
+    updateFunction(seed, scale, scaleH, scaleV, e.target.valueAsNumber, rawShift, exponent, octaves, lacunarity, persistence);
   };
   
   const handleRawShiftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRawShift(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, e.target.valueAsNumber, exponent, octaves, lacunarity, persistence);
+    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, e.target.valueAsNumber, exponent, octaves, lacunarity, persistence);
   };
   
   const handleExponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setExponent(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, e.target.valueAsNumber, octaves, lacunarity, persistence);
+    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, e.target.valueAsNumber, octaves, lacunarity, persistence);
   };
   
   const handleOctavesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOctaves(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, e.target.valueAsNumber, lacunarity, persistence);
+    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, e.target.valueAsNumber, lacunarity, persistence);
   };
   
   const handleLacunarityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLacunarity(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, e.target.valueAsNumber, persistence);
+    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, e.target.valueAsNumber, persistence);
   };
   
   const handlePersistenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPersistence(e.target.valueAsNumber);
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, e.target.valueAsNumber);
+    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, e.target.valueAsNumber);
   };
 
-  const updateDirectly = useCallback((
+  const updateFunction = useCallback((
     seed: number,
     scale: number,
     scaleH: number,
@@ -126,21 +80,24 @@ export const PerlinGenerator: React.FC<{
     lacunarity: number,
     persistence: number
   ) => {
-    ch.consumeHeight(perlinMap(size, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence));
-  }, [ch, size]);
 
-  const update = useCallback(() => {
-    updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
-  }, [updateDirectly, seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence]);
+    const hash = ('perlin ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
 
-  ch.addUpdateFunction("height", update); 
+    // Update the generator function
+    fh.setHeightGenerator(hash,
+       () => {
+      return perlinMap(SEGMENTS, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+    });
+  }, [fh]);
+
+  updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
 
   return (
     <div>
       <label>Seed:</label>
       <input type="number" value={seed} onChange={handleSeedChange} style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      {/* <label>Size:</label>
-      <input type="number" min="16" max="2048" step="1" value={size} onChange={handleSizeChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} /> */}
+      {/* <label>SEGMENTS:</label>
+      <input type="number" min="16" max="2048" step="1" value={SEGMENTS} onChange={handleSEGMENTSChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} /> */}
       <label>Scale:</label>
       <input type="number" min="0" max="10" step="0.02" value={scale} onChange={handleScaleChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
       <label>Scale horizontal:</label>
