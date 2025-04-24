@@ -24,7 +24,7 @@ export const ColorByBiome: React.FC<{
     biomeConsumerDirect(biomeMapCachedRef.current, e.target.valueAsNumber);
   };
 
-  ch.addBiomeConsumer("colorbybiome", biomeConsumer);
+  ch.addBiomeConsumer("color", biomeConsumer);
   
   return (
     <div>

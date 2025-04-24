@@ -133,7 +133,7 @@ export const PerlinGenerator: React.FC<{
     updateDirectly(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
   }, [updateDirectly, seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence]);
 
-  ch.addUpdateFunction("perlin", update); 
+  ch.addUpdateFunction("height", update); 
 
   return (
     <div>

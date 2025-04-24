@@ -10,7 +10,7 @@ export const BiomeByHeight: React.FC<{
     ch.consumeBiome(biomeByHeight(heightMap));
   }, [ch]);
 
-  ch.addHeightConsumer("biomebyheight",heightConsumer);
+  ch.addHeightConsumer("biome",heightConsumer);
   
   return (
     <div>

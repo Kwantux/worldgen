@@ -10,7 +10,7 @@ export const ColorByHeight: React.FC<{
     ch.consumeColor(colorByHeight(height));
   }, [ch]);
 
-  ch.addHeightConsumer(heightConsumer);
+  ch.addHeightConsumer("color", heightConsumer);
   
   return (
     <div>
