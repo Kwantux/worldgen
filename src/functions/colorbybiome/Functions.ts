@@ -41,7 +41,7 @@ export const BIOME_COLORS: number[][] = [
   [0.9, 0.7, 0.1], // Desert
   [0.5, 0.7, 0.9], // Tundra
   [0.4, 0.4, 0.6], // Mountain
-  [0.1, 0.3, 0.8], // Ocean
+  [0.9, 0.9, 0.4], // Ocean
   [0.8, 0.9, 1.0]  // Ice
 ];
 

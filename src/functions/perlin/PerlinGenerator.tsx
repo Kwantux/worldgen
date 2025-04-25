@@ -13,7 +13,7 @@ export const PerlinGenerator: React.FC<{
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
   const [rawShift, setRawShift] = useState(0);
-  const [exponent, setExponent] = useState(3);
+  const [exponent, setExponent] = useState(4);
   const [octaves, setOctaves] = useState(5);
   const [lacunarity, setLacunarity] = useState(0.4);
   const [persistence, setPersistence] = useState(3.5);

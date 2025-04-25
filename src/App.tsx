@@ -9,6 +9,7 @@ import { NoPostProcessing } from "./functions/nopostprocessing/NoPostProcessing"
 import { SimpleSmoothing } from "./functions/simplesmoothing/SimpleSmoothing";
 import { SmoothBySteepness } from "./functions/smoothbysteepness/SmoothBySteepness";
 import { SmoothByHeight } from "./functions/smoothbyheight/SmoothByHeight";
+import { WaterByHeight } from "./functions/waterbyheight/WaterByHeight";
 
 const App = () => {
 
@@ -18,6 +19,8 @@ const App = () => {
   const [biomeGenerator, setBiomeGenerator] = useState("biomebyheight");
   const [postProcessing, setPostProcessing] = useState('none');
   const [colorGenerator, setColorGenerator] = useState("colorbybiome");
+  const [waterGenerator, setWaterGenerator] = useState("waterbyheight");
+  const [vegetationGenerator, setVegetationGenerator] = useState("none");
 
   const [worldRendered, setWorldRendered] = useState(false);
 
@@ -35,6 +38,14 @@ const App = () => {
   
   const handleColorGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setColorGenerator(event.target.value);
+  };
+
+  const handleWaterGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setWaterGenerator(event.target.value);
+  };
+
+  const handleVegetationGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setVegetationGenerator(event.target.value);
   };
   
   return (
@@ -102,7 +113,28 @@ const App = () => {
               {colorGenerator === "colorbyheight" && (
                 <ColorByHeight fh={fh} />
               )}
-              </div>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Water</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={waterGenerator} onChange={handleWaterGeneratorChange}>
+                <option value="none">None</option>
+                <option value="waterbyheight">Water by height</option>
+              </select>
+              {waterGenerator === "waterbyheight" && (
+                <WaterByHeight fh={fh} />
+              )}
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Vegetation</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={vegetationGenerator} onChange={handleVegetationGeneratorChange}>
+                <option value="none">None</option>
+              </select>
+            </div>
+
           </div>
         )}
       </div>
