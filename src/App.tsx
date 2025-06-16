@@ -10,10 +10,21 @@ import { SimpleSmoothing } from "./functions/simplesmoothing/SimpleSmoothing";
 import { SmoothBySteepness } from "./functions/smoothbysteepness/SmoothBySteepness";
 import { SmoothByHeight } from "./functions/smoothbyheight/SmoothByHeight";
 import { WaterByHeight } from "./functions/waterbyheight/WaterByHeight";
+import { NoHeight } from "./functions/noheight/NoHeight";
+import { NoWater } from "./functions/nowater/NoWater";
 
 const App = () => {
 
-  const fh = useMemo(() => new FunctionHolder(), []);
+  const fh = useMemo(() => {
+    const holder = new FunctionHolder();
+    holder.setTimeUpdateCallback((times: { [key: string]: number }) => {
+      setTimes(prevTimes => ({
+        ...prevTimes,
+        ...times
+      }));
+    });
+    return holder;
+  }, []);
 
   const [heightMapGenerator, setHeightMapGenerator] = useState("perlin");
   const [biomeGenerator, setBiomeGenerator] = useState("biomebyheight");
@@ -23,6 +34,7 @@ const App = () => {
   const [vegetationGenerator, setVegetationGenerator] = useState("none");
 
   const [worldRendered, setWorldRendered] = useState(false);
+  const [times, setTimes] = useState({ height: 0, biome: 0, postProcessing: 0, color: 0, water: 0 });
 
   const handleHeightMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setHeightMapGenerator(event.target.value);
@@ -57,12 +69,16 @@ const App = () => {
               <h1 style={{ marginBottom: '16px' }}>Height Map</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
                 value={heightMapGenerator} onChange={handleHeightMapGeneratorChange}>
-                <option value="none">None</option>
+                <option value="noheight">None</option>
                 <option value="perlin">Perlin Noise</option>
               </select>
+              { heightMapGenerator === "noheight" && (
+                <NoHeight fh={fh} />
+              ) }
               { heightMapGenerator === "perlin" && (
                 <PerlinGenerator fh={fh} />
               ) }
+              <p>Generation time: {times.height}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -74,6 +90,7 @@ const App = () => {
               {biomeGenerator === "biomebyheight" && (
                 <BiomeByHeight fh={fh} />
               )}
+              <p>Generation time: {times.biome}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -81,12 +98,12 @@ const App = () => {
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
                 value={postProcessing} onChange={handlePostProcessingChange}
               >
-                <option value="none">None</option>
+                <option value="nopostprocessing">None</option>
                 <option value="simplesmoothing">Simple smoothing</option>
                 <option value="smoothbysteepness">Smooth by steepness</option>
                 <option value="smoothbyheight">Smooth by height</option>
               </select>
-              {postProcessing === "none" && (
+              {postProcessing === "nopostprocessing" && (
                 <NoPostProcessing fh={fh} />
               )}
               {postProcessing === "simplesmoothing" && (
@@ -98,6 +115,7 @@ const App = () => {
               {postProcessing === "smoothbyheight" && (
                 <SmoothByHeight fh={fh} />
               )}
+              <p>Generation time: {fh.getTimes()["postProcessing"]}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -113,18 +131,23 @@ const App = () => {
               {colorGenerator === "colorbyheight" && (
                 <ColorByHeight fh={fh} />
               )}
+              <p>Generation time: {fh.getTimes()["color"]}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
               <h1 style={{ marginBottom: '16px' }}>Water</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
                 value={waterGenerator} onChange={handleWaterGeneratorChange}>
-                <option value="none">None</option>
+                <option value="nowater">None</option>
                 <option value="waterbyheight">Water by height</option>
               </select>
+              {waterGenerator === "nowater" && (
+                <NoWater fh={fh} />
+              )}
               {waterGenerator === "waterbyheight" && (
                 <WaterByHeight fh={fh} />
               )}
+              <p>Generation time: {fh.getTimes()["water"]}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -133,6 +156,7 @@ const App = () => {
                 value={vegetationGenerator} onChange={handleVegetationGeneratorChange}>
                 <option value="none">None</option>
               </select>
+              <p>Generation time: {fh.getTimes()["vegetation"]}ms</p>
             </div>
 
           </div>

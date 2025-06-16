@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SEGMENTS } from "../components/terrain/Terrain";
 
 export class FunctionHolder {
@@ -96,6 +97,29 @@ export class FunctionHolder {
 
 
 
+  // Time tracking
+  private times: { [key: string]: number } = {
+    height: 0,
+    biome: 0,
+    postProcessing: 0,
+    color: 0,
+    water: 0
+  };
+  private timeUpdateCallback: (times: { [key: string]: number }) => void = () => {};
+
+  public setTimeUpdateCallback(callback: (times: { [key: string]: number }) => void) {
+    this.timeUpdateCallback = callback;
+  }
+
+  public getTimes() {
+    return this.times;
+  }
+
+  private updateTime(key: string, value: number) {
+    this.times[key] = value;
+    this.timeUpdateCallback(this.times);
+  }
+
   // Map caches
   private rawHeightMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
   private biomeMap: Int16Array = new Int16Array(SEGMENTS * SEGMENTS);
@@ -107,35 +131,51 @@ export class FunctionHolder {
   // Rebuild Terrain function
   private rebuildHeight = () => {
     console.log(" [1] Generating height map")
+    const startTime = performance.now();
     this.rawHeightMap = this.heightGenerator();
+    const endTime = performance.now();
+    this.heightMapConsumer(this.rawHeightMap);
+    this.updateTime('height', endTime - startTime);
     this.rebuildBiome();
   }
 
   private rebuildBiome = () => {
     console.log(" [2] Generating biome map")
+    const startTime = performance.now();
     this.biomeMap = this.biomeGenerator(this.rawHeightMap);
+    const endTime = performance.now();
+    this.updateTime('biome', endTime - startTime);
     this.rebuildPostProcessing();
   }
 
   private rebuildPostProcessing = () => {
     console.log(" [3] Post processing map")
+    const startTime = performance.now();
     this.processedHeightMap = this.postProcessing(this.rawHeightMap, this.biomeMap);
+    const endTime = performance.now();
     this.heightMapConsumer(this.processedHeightMap);
+    this.updateTime('postProcessing', endTime - startTime);
     this.rebuildColor();
     this.rebuildWater();
+    // this.rebuildVegetation();
   }
 
   private rebuildColor = () => {
     console.log(" [4] Coloring map")
-    this.colorMap = this.colorGenerator(this.processedHeightMap, this.biomeMap);
-    this.colorMapConsumer(this.colorMap);
+    const startTime = performance.now();
+    const colorMap = this.colorGenerator(this.processedHeightMap, this.biomeMap);
+    const endTime = performance.now();
+    this.colorMapConsumer(colorMap);
+    this.updateTime('color', endTime - startTime);
   }
 
   private rebuildWater = () => {
     console.log(" [5] Filling water")
-    this.waterMap = this.waterGenerator(this.processedHeightMap, this.biomeMap);
-    this.waterMapConsumer(this.waterMap);
+    const startTime = performance.now();
+    const waterMap = this.waterGenerator(this.processedHeightMap, this.biomeMap);
+    const endTime = performance.now();
+    this.waterMapConsumer(waterMap);
+    this.updateTime('water', endTime - startTime);
   }
-
   
 }
