@@ -81,7 +81,7 @@ export const PerlinGenerator: React.FC<{
     persistence: number
   ) => {
 
-    const hash = ('perlin ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
+    const hash = ('perlinheight ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
 
     // Update the generator function
     fh.setHeightGenerator(hash,
