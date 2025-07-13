@@ -6,7 +6,7 @@ export const TemperatureByHeightAndSunshine: React.FC<{
 }> = ({ fh }) => {
 
   const [weightHeight, setWeightHeight] = useState(0.5);
-  const [weightSunshine, setWeightSunshine] = useState(0.75);
+  const [weightSunshine, setWeightSunshine] = useState(0.5);
 
   const handleWeightHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWeightHeight(e.target.valueAsNumber);

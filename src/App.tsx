@@ -302,7 +302,6 @@ const App = () => {
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px' , backgroundColor: '#2b2a33'}}
                 value={biomeGenerator} onChange={handleBiomeGeneratorChange}>
                 <option value="biomebyheight">Biome by height</option>
-                <option value="biomebyheightandsunshine">Biome by height and sunshine</option>
                 <option value="biomebyheightandhumidityandtemperature">Biome by height, humidity and temperature</option>
               </select>
               {biomeGenerator === "biomebyheight" && (
