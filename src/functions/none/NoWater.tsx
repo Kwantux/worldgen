@@ -14,7 +14,7 @@ export const NoWater: React.FC<{
     fh: FunctionHolder
 }> = ({ fh }) => {
   
-  fh.setWaterGenerator("nowater", noWater);
+  fh.setWaterGenerator("none", noWater);
 
   return (
     <div>

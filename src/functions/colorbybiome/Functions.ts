@@ -31,6 +31,7 @@ export const BIOME_TUNDRA = 4;
 export const BIOME_MOUNTAIN = 5;
 export const BIOME_OCEAN = 6;
 export const BIOME_ICE = 7;
+export const BIOME_JUNGLE = 8;
 
 export const BIOME_UNKNOWN = 0;
 
@@ -42,7 +43,8 @@ export const BIOME_COLORS: number[][] = [
   [0.5, 0.7, 0.9], // Tundra
   [0.4, 0.4, 0.6], // Mountain
   [0.9, 0.9, 0.4], // Ocean
-  [0.8, 0.9, 1.0]  // Ice
+  [0.8, 0.9, 1.0], // Ice
+  [0.2, 1.0, 0.3]  // Jungle
 ];
 
 function biomeColor(biome: number): number[] {

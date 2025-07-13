@@ -1,17 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { FunctionHolder } from "./functions/FunctionHolder";
 import { World } from "./components/World";
-import { PerlinGenerator } from "./functions/perlinheight/PerlinGenerator";
+import { PerlinGenerator } from "./functions/perlinheight/PerlinHeight";
+import { PerlinSunshineGenerator } from "./functions/perlinsunshine/PerlinSunshine";
 import { BiomeByHeight } from "./functions/biomebyheight/BiomeByHeight";
+import { BiomeByHeightAndHumidityAndTemperature } from "./functions/biomebyheightandhumidityandtemperature/BiomeByHeightAndHumidityAndTemperature";
 import { ColorByBiome } from "./functions/colorbybiome/ColorByBiome";
 import { ColorByHeight } from "./functions/colorbyheight/ColorByHeight";
-import { NoPostProcessing } from "./functions/nopostprocessing/NoPostProcessing";
+import { NoPostProcessing } from "./functions/none/NoPostProcessing";
 import { SimpleSmoothing } from "./functions/simplesmoothing/SimpleSmoothing";
 import { SmoothBySteepness } from "./functions/smoothbysteepness/SmoothBySteepness";
 import { SmoothByHeight } from "./functions/smoothbyheight/SmoothByHeight";
 import { WaterByHeight } from "./functions/waterbyheight/WaterByHeight";
-import { NoHeight } from "./functions/noheight/NoHeight";
-import { NoWater } from "./functions/nowater/NoWater";
+import { NoHeight } from "./functions/none/NoHeight";
+import { NoTemperature } from "./functions/none/NoTemperature";
+import { NoWater } from "./functions/none/NoWater";
+import { NoHumidity } from "./functions/none/NoHumidity";
+import { NoSunshine } from "./functions/none/NoSunshine";
+import { TemperatureBySunshine } from "./functions/temperaturebysunshine/TemperatureBySunshine";
+import { TemperatureByHeight } from "./functions/temperaturebyheight/TemperatureByHeight";
+import { TemperatureByHeightAndSunshine } from "./functions/temperaturebyheightandsunshine/TemperatureByHeightAndSunshine";
+import { PerlinHumidity } from "./functions/perlinhumidity/PerlinHumidity";
 
 const App = () => {
 
@@ -27,14 +36,17 @@ const App = () => {
   }, []);
 
   const [heightMapGenerator, setHeightMapGenerator] = useState("perlin");
-  const [biomeGenerator, setBiomeGenerator] = useState("biomebyheight");
+  const [sunshineMapGenerator, setSunshineMapGenerator] = useState("perlin");
+  const [biomeGenerator, setBiomeGenerator] = useState("biomebyheightandhumidityandtemperature");
   const [postProcessing, setPostProcessing] = useState('nopostprocessing');
   const [colorGenerator, setColorGenerator] = useState("colorbybiome");
   const [waterGenerator, setWaterGenerator] = useState("waterbyheight");
-  const [vegetationGenerator, setVegetationGenerator] = useState("none");
+  const [humidityGenerator, setHumidityGenerator] = useState("perlin");
+  const [temperatureGenerator, setTemperatureGenerator] = useState("temperaturebyheightandsunshine");
+  // const [vegetationGenerator, setVegetationGenerator] = useState("none");
 
   const [worldRendered, setWorldRendered] = useState(false);
-  const [times, setTimes] = useState({ height: 0, biome: 0, postProcessing: 0, color: 0, water: 0 });
+  const [times, setTimes] = useState({ height: 0, sunshine: 0, biome: 0, postProcessing: 0, color: 0, water: 0 });
   const [showRightSidebar, setShowRightSidebar] = useState(false);
 
   useEffect(() => {
@@ -49,6 +61,42 @@ const App = () => {
     if (document.getElementById('height-map-image')) {
       document.getElementById('height-map-image')!.innerHTML = "";
       document.getElementById('height-map-image')!.appendChild(heightMapImage);
+    }
+  })
+
+  fh.setWaterMapImageConsumer((waterMapImage) => {
+    waterMapImage.style.maxWidth = '196px';
+    waterMapImage.style.maxHeight = '196px';
+    if (document.getElementById('water-map-image')) {
+      document.getElementById('water-map-image')!.innerHTML = "";
+      document.getElementById('water-map-image')!.appendChild(waterMapImage);
+    }
+  })
+  
+  fh.setHumidityMapImageConsumer((humidityMapImage) => {
+    humidityMapImage.style.maxWidth = '196px';
+    humidityMapImage.style.maxHeight = '196px';
+    if (document.getElementById('humidity-map-image')) {
+      document.getElementById('humidity-map-image')!.innerHTML = "";
+      document.getElementById('humidity-map-image')!.appendChild(humidityMapImage);
+    }
+  })
+
+  fh.setSunshineMapImageConsumer((sunshineMapImage) => {
+    sunshineMapImage.style.maxWidth = '196px';
+    sunshineMapImage.style.maxHeight = '196px';
+    if (document.getElementById('sunshine-map-image')) {
+      document.getElementById('sunshine-map-image')!.innerHTML = "";
+      document.getElementById('sunshine-map-image')!.appendChild(sunshineMapImage);
+    }
+  })
+
+  fh.setTemperatureMapImageConsumer((temperatureMapImage) => {
+    temperatureMapImage.style.maxWidth = '196px';
+    temperatureMapImage.style.maxHeight = '196px';
+    if (document.getElementById('temperature-map-image')) {
+      document.getElementById('temperature-map-image')!.innerHTML = "";
+      document.getElementById('temperature-map-image')!.appendChild(temperatureMapImage);
     }
   })
 
@@ -70,17 +118,13 @@ const App = () => {
     }
   })
 
-  fh.setWaterMapImageConsumer((waterMapImage) => {
-    waterMapImage.style.maxWidth = '196px';
-    waterMapImage.style.maxHeight = '196px';
-    if (document.getElementById('water-map-image')) {
-      document.getElementById('water-map-image')!.innerHTML = "";
-      document.getElementById('water-map-image')!.appendChild(waterMapImage);
-    }
-  })
   
   const handleHeightMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setHeightMapGenerator(event.target.value);
+  };
+
+  const handleSunshineMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSunshineMapGenerator(event.target.value);
   };
   
   const handleBiomeGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -99,9 +143,17 @@ const App = () => {
     setWaterGenerator(event.target.value);
   };
 
-  const handleVegetationGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setVegetationGenerator(event.target.value);
+  const handleHumidityGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setHumidityGenerator(event.target.value);
   };
+
+  const handleTemperatureGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTemperatureGenerator(event.target.value);
+  };
+
+  // const handleVegetationGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setVegetationGenerator(event.target.value);
+  // };
   
 
   return (
@@ -142,19 +194,23 @@ const App = () => {
               ) }
               <br/>
               <p>Generation time: {times.height}ms</p>
-
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
-              <h1 style={{ marginBottom: '16px' }}>Biome</h1>
-              <select style={{ width: '100%', padding: '8px', marginBottom: '16px' , backgroundColor: '#2b2a33'}}
-                value={biomeGenerator} onChange={handleBiomeGeneratorChange}>
-                <option value="biomebyheight">Biome by height</option>
+              <h1 style={{ marginBottom: '16px' }}>Sunshine Map</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={sunshineMapGenerator} onChange={handleSunshineMapGeneratorChange}>
+                <option value="noperlin">None</option>
+                <option value="perlin">Perlin Noise</option>
               </select>
-              {biomeGenerator === "biomebyheight" && (
-                <BiomeByHeight fh={fh} />
-              )}
-              <p>Generation time: {times.biome}ms</p>
+              { sunshineMapGenerator === "noperlin" && (
+                <NoSunshine fh={fh} />
+              ) }
+              { sunshineMapGenerator === "perlin" && (
+                <PerlinSunshineGenerator fh={fh} />
+              ) }
+              <br/>
+              <p>Generation time: {times.sunshine}ms</p>
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
@@ -183,23 +239,6 @@ const App = () => {
             </div>
 
             <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
-              <h1 style={{ marginBottom: '16px' }}>Material</h1>
-              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
-                value={colorGenerator} onChange={handleColorGeneratorChange}>
-                <option value="colorbybiome">Color by biome</option>
-                <option value="colorbyheight">Color by height</option>
-              </select>
-              {colorGenerator === "colorbybiome" && (
-                <ColorByBiome fh={fh} />
-              )}
-              {colorGenerator === "colorbyheight" && (
-                <ColorByHeight fh={fh} />
-              )}
-              <br/>
-              <p>Generation time: {fh.getTimes()["color"]}ms</p>
-            </div>
-
-            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
               <h1 style={{ marginBottom: '16px' }}>Water</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
                 value={waterGenerator} onChange={handleWaterGeneratorChange}>
@@ -216,6 +255,82 @@ const App = () => {
               <p>Generation time: {fh.getTimes()["water"]}ms</p>
             </div>
 
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Humidity</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={humidityGenerator} onChange={handleHumidityGeneratorChange}>
+                <option value="none">None</option>
+                <option value="perlin">Perlin Humidity</option>
+              </select>
+              {humidityGenerator === "none" && (
+                <NoHumidity fh={fh} />
+              )}
+              {humidityGenerator === "perlin" && (
+                <PerlinHumidity fh={fh} />
+              )}
+              <br/>
+              <p>Generation time: {fh.getTimes()["humidity"]}ms</p>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Temperature</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={temperatureGenerator} onChange={handleTemperatureGeneratorChange}>
+                <option value="none">None</option>
+                <option value="temperaturebysunshine">Temperature by sunshine</option>
+                <option value="temperaturebyheight">Temperature by height</option>
+                <option value="temperaturebyheightandsunshine">Temperature by height and sunshine</option>
+              </select>
+              {temperatureGenerator === "none" && (
+                <NoTemperature fh={fh} />
+              )}
+              {temperatureGenerator === "temperaturebysunshine" && (
+                <TemperatureBySunshine fh={fh} />
+              )}
+              {temperatureGenerator === "temperaturebyheight" && (
+                <TemperatureByHeight fh={fh} />
+              )}
+              {temperatureGenerator === "temperaturebyheightandsunshine" && (
+                <TemperatureByHeightAndSunshine fh={fh} />
+              )}
+              <br/>
+              <p>Generation time: {fh.getTimes()["temperature"]}ms</p>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Biome</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px' , backgroundColor: '#2b2a33'}}
+                value={biomeGenerator} onChange={handleBiomeGeneratorChange}>
+                <option value="biomebyheight">Biome by height</option>
+                <option value="biomebyheightandsunshine">Biome by height and sunshine</option>
+                <option value="biomebyheightandhumidityandtemperature">Biome by height, humidity and temperature</option>
+              </select>
+              {biomeGenerator === "biomebyheight" && (
+                <BiomeByHeight fh={fh} />
+              )}
+              {biomeGenerator === "biomebyheightandhumidityandtemperature" && (
+                <BiomeByHeightAndHumidityAndTemperature fh={fh} />
+              )}
+              <p>Generation time: {times.biome}ms</p>
+            </div>
+
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Material</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={colorGenerator} onChange={handleColorGeneratorChange}>
+                <option value="colorbybiome">Color by biome</option>
+                <option value="colorbyheight">Color by height</option>
+              </select>
+              {colorGenerator === "colorbybiome" && (
+                <ColorByBiome fh={fh} />
+              )}
+              {colorGenerator === "colorbyheight" && (
+                <ColorByHeight fh={fh} />
+              )}
+              <br/>
+              <p>Generation time: {fh.getTimes()["color"]}ms</p>
+            </div>
+
             {/* <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#202020' }}>
               <h1 style={{ marginBottom: '16px' }}>Vegetation</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
@@ -228,6 +343,12 @@ const App = () => {
 
           </div>
         )}
+        {!worldRendered && (
+          <div style={{ padding: '16px', backgroundColor: '#202020' }}>
+            <p>Generating initial world...</p>
+            <p>Please wait for the UI to load.</p>
+          </div>
+        )}
       </div>
       <div className="overflow-hidden" style={{ flex: 1, width: '1000px' }}>
         <World fh={fh} onLoad={() => setWorldRendered(true)} />
@@ -236,8 +357,52 @@ const App = () => {
         <div className="overflow-y-auto" style={{ flex: "0 0 228px", backgroundColor: '#202020', position: 'relative' }}>
         {worldRendered && (
           <div style={{ padding: '16px', backgroundColor: '#202020' }}>
-          <p>Height map</p>
+          <p>Raw Height map</p>
           <div id="height-map-image" style={{ 
+            width: '200px', 
+            height: '200px',
+            marginTop: '16px',
+            backgroundColor: '#101010',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} />
+          <br/>
+          <p>Water map</p>
+          <div id="water-map-image" style={{ 
+            width: '200px', 
+            height: '200px',
+            marginTop: '16px',
+            backgroundColor: '#101010',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} />
+          <br/>
+          <p>Humidity map</p>
+          <div id="humidity-map-image" style={{ 
+            width: '200px', 
+            height: '200px',
+            marginTop: '16px',
+            backgroundColor: '#101010',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} />
+          <br/>
+          <p>Sunshine map</p>
+          <div id="sunshine-map-image" style={{ 
+            width: '200px', 
+            height: '200px',
+            marginTop: '16px',
+            backgroundColor: '#101010',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} />
+          <br/>
+          <p>Temperature map</p>
+          <div id="temperature-map-image" style={{ 
             width: '200px', 
             height: '200px',
             marginTop: '16px',
@@ -260,17 +425,6 @@ const App = () => {
           <br/>
           <p>Color map</p>
           <div id="color-map-image" style={{ 
-            width: '200px', 
-            height: '200px',
-            marginTop: '16px',
-            backgroundColor: '#101010',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }} />
-          <br/>
-          <p>Water map</p>
-          <div id="water-map-image" style={{ 
             width: '200px', 
             height: '200px',
             marginTop: '16px',

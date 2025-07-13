@@ -3,13 +3,13 @@ import { perlinMap } from '../perlinheight/Functions';
 import { FunctionHolder } from '../FunctionHolder';
 import { SEGMENTS } from '../../components/terrain/Terrain';
 
-export const PerlinTemperatureGenerator: React.FC<{
+export const PerlinSunshineGenerator: React.FC<{
   fh: FunctionHolder;
 }> = ({ fh }) => {
 
-  const [seed, setSeed] = useState(0);
+  const [seed, setSeed] = useState(1000);
   const [scale, setScale] = useState(1);
-  const [scaleH, setScaleH] = useState(2);
+  const [scaleH, setScaleH] = useState(10);
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
   const [rawShift, setRawShift] = useState(0);
@@ -84,7 +84,7 @@ export const PerlinTemperatureGenerator: React.FC<{
     const hash = ('perlintemperature ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
 
     // Update the generator function
-    fh.setTemperatureGenerator(hash,
+    fh.setSunshineGenerator(hash,
        () => {
       return perlinMap(SEGMENTS, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
     });

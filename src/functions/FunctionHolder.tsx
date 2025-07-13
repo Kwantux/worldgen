@@ -4,11 +4,13 @@ import { BIOME_COLORS } from "./colorbybiome/Functions";
 export class FunctionHolder {
 
   // Function hashes
-  private heightGeneratorHash = "";
+  private rawHeightGeneratorHash = "";
+  private heightPostProcessingHash = "";
   private waterGeneratorHash = "";
+  private sunshineGeneratorHash = "";
+  private humidityGeneratorHash = "";
   private temperatureGeneratorHash = "";
   private biomeGeneratorHash = "";
-  private postProcessingHash = "";
   private colorGeneratorHash = "";
 
   // Height map image generation
@@ -33,6 +35,34 @@ export class FunctionHolder {
       data[pixelIndex] = normalized;      // Red
       data[pixelIndex + 1] = normalized;  // Green
       data[pixelIndex + 2] = normalized;  // Blue
+      data[pixelIndex + 3] = 255;         // Alpha
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+  }
+
+  private generateSunshineMapImage = (sunshineMap: Float32Array): HTMLCanvasElement => {
+    const canvas = document.createElement('canvas');
+    const size = Math.sqrt(sunshineMap.length);
+    canvas.width = size;
+    canvas.height = size;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+    const max = Math.max(...sunshineMap);
+    const min = Math.min(...sunshineMap);
+
+    // Normalize temperature values to 0-255 range
+    for (let i = 0; i < sunshineMap.length; i++) {
+      const normalized = ((sunshineMap[i] - min) / (max - min)) * 255;
+      const pixelIndex = i * 4;
+      data[pixelIndex] = normalized;      // Red
+      data[pixelIndex + 1] = normalized;  // Green
+      data[pixelIndex + 2] = 0;           // Blue
       data[pixelIndex + 3] = 255;         // Alpha
     }
 
@@ -116,35 +146,139 @@ export class FunctionHolder {
     return canvas;
   }
 
+  private generateHumidityMapImage = (humidityMap: Float32Array): HTMLCanvasElement => {
+    const canvas = document.createElement('canvas');
+    const size = Math.sqrt(humidityMap.length);
+    canvas.width = size;
+    canvas.height = size;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+
+    const max = Math.max(...this.processedHeightMap);
+    const min = Math.min(...this.processedHeightMap);
+
+    for (let i = 0; i < humidityMap.length; i++) {
+      const pixelIndex = i * 4;
+      const normalized = ((humidityMap[i] - min) / (max - min)) * 255;
+      data[pixelIndex] = 0;               // Red
+      data[pixelIndex + 1] = normalized;  // Green
+      data[pixelIndex + 2] = normalized;  // Blue
+      data[pixelIndex + 3] = 255;         // Alpha
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+  }
+
+  private generateTemperatureMapImage(temperatureMap: Float32Array): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    const size = Math.sqrt(temperatureMap.length);
+    canvas.width = size;
+    canvas.height = size;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+
+    const max = Math.max(...temperatureMap);
+    const min = Math.min(...temperatureMap);
+
+
+    for (let i = 0; i < temperatureMap.length; i++) {
+      const pixelIndex = i * 4;
+      const normalized = ((temperatureMap[i] - min) / (max - min)) * 255;
+      data[pixelIndex] = normalized;               // Red
+      data[pixelIndex + 1] = 255-Math.abs(normalized-128)*2;  // Green
+      data[pixelIndex + 2] = 255 - normalized;  // Blue
+      data[pixelIndex + 3] = 255;         // Alpha
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+  }
+
 
   // Raw height generator
-  private heightGenerator: () => Float32Array 
+  private rawHeightGenerator: () => Float32Array 
     = () => new Float32Array(SEGMENTS * SEGMENTS);
-  public setHeightGenerator(hash: string, func: () => Float32Array) {
-    if (this.heightGeneratorHash === hash) return;
-    this.heightGeneratorHash = hash;
-    this.heightGenerator = func;
+  public setRawHeightGenerator(hash: string, func: () => Float32Array) {
+    if (this.rawHeightGeneratorHash === hash) return;
+    this.rawHeightGeneratorHash = hash;
+    this.rawHeightGenerator = func;
     this.rebuildHeight();
+  }
+  
+  // Post processing
+  private heightPostProcessing: (heightMap: Float32Array) => Float32Array
+  = (heightMap: Float32Array) => heightMap;
+  public setHeightPostProcessing(hash: string, func: (heightMap: Float32Array) => Float32Array) {
+    if (this.heightPostProcessingHash === hash) return;
+    this.heightPostProcessingHash = hash;
+    this.heightPostProcessing = func;
+    this.rebuildHeightPostProcessing();
+  }
+  
+  // Sunshine generator
+  private sunshineGenerator: () => Float32Array 
+  = () => new Float32Array(SEGMENTS * SEGMENTS);
+  public setSunshineGenerator(hash: string, func: () => Float32Array) {
+    if (this.sunshineGeneratorHash === hash) return;
+    this.sunshineGeneratorHash = hash;
+    this.sunshineGenerator = func;
+    this.rebuildSunshine();
+  }
+  
+  // Water generator
+  private waterGenerator: (heightMap: Float32Array) => Float32Array
+  = () => {
+    return new Float32Array(SEGMENTS * SEGMENTS);
+  };
+  public setWaterGenerator(hash: string, func: (heightMap: Float32Array) => Float32Array) {
+    if (this.waterGeneratorHash === hash) return;
+    this.waterGeneratorHash = hash;
+    this.waterGenerator = func;
+    console.log("water generator set")
+    this.rebuildWater()
+  }
+
+  // Humidity generator
+  private humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array
+  = () => {
+    return new Float32Array(SEGMENTS * SEGMENTS);
+  };
+  public setHumidityGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+    if (this.humidityGeneratorHash === hash) return;
+    this.humidityGeneratorHash = hash;
+    this.humidityGenerator = func;
+    this.rebuildHumidity()
+  }
+
+  // Temperature generator
+  private temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array
+  = () => {
+    return new Float32Array(SEGMENTS * SEGMENTS);
+  };
+  public setTemperatureGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+    if (this.temperatureGeneratorHash === hash) return;
+    this.temperatureGeneratorHash = hash;
+    this.temperatureGenerator = func;
+    this.rebuildTemperature()
   }
 
   // Biome generator
-  private biomeGenerator: (heightMap: Float32Array) => Int16Array
+  private biomeGenerator: (heightMap: Float32Array, humidityMap: Float32Array, temperatureMap: Float32Array) => Int16Array
     = () => new Int16Array(SEGMENTS * SEGMENTS);
-  public setBiomeGenerator(hash: string, func: (heightMap: Float32Array) => Int16Array) {
+  public setBiomeGenerator(hash: string, func: (heightMap: Float32Array, humidityMap: Float32Array, temperatureMap: Float32Array) => Int16Array) {
     if (this.biomeGeneratorHash === hash) return;
     this.biomeGeneratorHash = hash;
     this.biomeGenerator = func;
     this.rebuildBiome();
-  }
-
-  // Post processing
-  private postProcessing: (heightMap: Float32Array, biomeMap: Int16Array) => Float32Array
-    = (heightMap: Float32Array) => heightMap;
-  public setPostProcessing(hash: string, func: (heightMap: Float32Array, biomeMap: Int16Array) => Float32Array) {
-    if (this.postProcessingHash === hash) return;
-    this.postProcessingHash = hash;
-    this.postProcessing = func;
-    this.rebuildPostProcessing();
   }
 
   // Color generator
@@ -157,17 +291,6 @@ export class FunctionHolder {
     this.rebuildColor();
   }
 
-  // Water generator
-  private waterGenerator: (heightMap: Float32Array, biomeMap: Int16Array) => Float32Array
-    = () => {
-    return new Float32Array(SEGMENTS * SEGMENTS);
-  };
-  public setWaterGenerator(hash: string, func: (heightMap: Float32Array, biomeMap: Int16Array) => Float32Array) {
-    if (this.waterGeneratorHash === hash) return;
-    this.waterGeneratorHash = hash;
-    this.waterGenerator = func;
-    this.rebuildWater()
-  }
 
 
   // Height Map consumer
@@ -236,12 +359,40 @@ export class FunctionHolder {
     this.waterMapImageConsumer = func;
   }
 
+  // Sunshine Map image consumer
+  private sunshineMapImageConsumer: (image: HTMLCanvasElement) => void = () => {
+    console.warn("Sunshine map image consumer function called before it was defined!")
+  };
+
+  public setSunshineMapImageConsumer(func: (image: HTMLCanvasElement) => void) {
+    this.sunshineMapImageConsumer = func;
+  }
+
+  // Temperature Map image consumer
+  private temperatureMapImageConsumer: (image: HTMLCanvasElement) => void = () => {
+    console.warn("Temperature map image consumer function called before it was defined!")
+  };
+
+  public setTemperatureMapImageConsumer(func: (image: HTMLCanvasElement) => void) {
+    this.temperatureMapImageConsumer = func;
+  }
+
+  // Humidity Map image consumer
+  private humidityMapImageConsumer: (image: HTMLCanvasElement) => void = () => {
+    console.warn("Humidity map image consumer function called before it was defined!")
+  };
+
+  public setHumidityMapImageConsumer(func: (image: HTMLCanvasElement) => void) {
+    this.humidityMapImageConsumer = func;
+  }
+
 
 
 
   // Time tracking
   private times: { [key: string]: number } = {
     height: 0,
+    sunshine: 0,
     biome: 0,
     postProcessing: 0,
     color: 0,
@@ -264,10 +415,13 @@ export class FunctionHolder {
 
   // Map caches
   private rawHeightMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
-  private biomeMap: Int16Array = new Int16Array(SEGMENTS * SEGMENTS);
   private processedHeightMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
-  private colorMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS * 3);
   private waterMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
+  private sunshineMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
+  private humidityMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
+  private temperatureMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS);
+  private biomeMap: Int16Array = new Int16Array(SEGMENTS * SEGMENTS);
+  private colorMap: Float32Array = new Float32Array(SEGMENTS * SEGMENTS * 3);
 
 
   // Update right sidebar
@@ -275,6 +429,18 @@ export class FunctionHolder {
     if (this.heightMapImageConsumer) {
       const image = this.generateHeightMapImage(this.processedHeightMap);
       this.heightMapImageConsumer(image);
+    }
+    if (this.sunshineMapImageConsumer) {
+      const image = this.generateSunshineMapImage(this.sunshineMap);
+      this.sunshineMapImageConsumer(image);
+    }
+    if (this.temperatureMapImageConsumer) {
+      const image = this.generateTemperatureMapImage(this.temperatureMap);
+      this.temperatureMapImageConsumer(image);
+    }
+    if (this.humidityMapImageConsumer) {
+      const image = this.generateHumidityMapImage(this.humidityMap);
+      this.humidityMapImageConsumer(image);
     }
     if (this.biomeMapImageConsumer) {
       const image = this.generateBiomeMapImage(this.biomeMap);
@@ -291,37 +457,38 @@ export class FunctionHolder {
   }
 
 
-  // Rebuild Terrain function
+  // Rebuild Terrain functions
+
   private rebuildHeight = () => {
-    console.log(" [1] Generating height map")
+    console.log(" [1A] Generating raw height map")
     const startTime = performance.now();
-    this.rawHeightMap = this.heightGenerator();
+    this.rawHeightMap = this.rawHeightGenerator();
     const endTime = performance.now();
     this.heightMapConsumer(this.rawHeightMap);
     this.updateTime('height', endTime - startTime);
-    this.rebuildBiome();
+    this.rebuildHeightPostProcessing();
   }
 
-  private rebuildBiome = () => {
-    console.log(" [2] Generating biome map")
+  private rebuildSunshine = () => {
+    console.log(" [1B] Generating sunshine map")
     const startTime = performance.now();
-    this.biomeMap = this.biomeGenerator(this.rawHeightMap);
+    this.sunshineMap = this.sunshineGenerator();
     const endTime = performance.now();
-    this.updateTime('biome', endTime - startTime);
+    this.updateTime('sunshine', endTime - startTime);
 
-    // Generate biome map image and trigger consumer if present
-    if (this.biomeMapImageConsumer) {
-      const image = this.generateBiomeMapImage(this.biomeMap);
-      this.biomeMapImageConsumer(image);
+    // Generate sunshine map image and trigger consumer if present
+    if (this.sunshineMapImageConsumer) {
+      const image = this.generateSunshineMapImage(this.sunshineMap);
+      this.sunshineMapImageConsumer(image);
     }
 
-    this.rebuildPostProcessing();
+    this.rebuildTemperature();
   }
 
-  private rebuildPostProcessing = () => {
-    console.log(" [3] Post processing map")
+  private rebuildHeightPostProcessing = () => {
+    console.log(" [2] Post processing height map")
     const startTime = performance.now();
-    this.processedHeightMap = this.postProcessing(this.rawHeightMap, this.biomeMap);
+    this.processedHeightMap = this.heightPostProcessing(this.rawHeightMap);
     const endTime = performance.now();
     this.heightMapConsumer(this.processedHeightMap);
     this.updateTime('postProcessing', endTime - startTime);
@@ -332,12 +499,78 @@ export class FunctionHolder {
       this.heightMapImageConsumer(image);
     }
     
-    this.rebuildColor();
     this.rebuildWater();
+    //this.rebuildVegetation();
+  }
+
+  private rebuildWater = () => {
+    console.log(" [3] Filling water")
+    const startTime = performance.now();
+    this.waterMap = this.waterGenerator(this.processedHeightMap);
+    const endTime = performance.now();
+    this.waterMapConsumer(this.waterMap);
+    this.updateTime('water', endTime - startTime);
+    
+    // Generate water map image and trigger consumer if present
+    if (this.waterMapImageConsumer) {
+      const image = this.generateWaterMapImage(this.waterMap);
+      this.waterMapImageConsumer(image);
+    }
+
+    this.rebuildHumidity();
   }
   
+    private rebuildHumidity() {
+      console.log(" [4] Generating humidity map")
+      const startTime = performance.now();
+      this.humidityMap = this.humidityGenerator(this.processedHeightMap, this.waterMap);
+      const endTime = performance.now();
+      this.updateTime('humidity', endTime - startTime);
+      
+      // Generate humidity map image and trigger consumer if present
+      if (this.humidityMapImageConsumer) {
+        const image = this.generateHumidityMapImage(this.humidityMap);
+        this.humidityMapImageConsumer(image);
+      }
+  
+      this.rebuildTemperature();
+    }
+  
+  private rebuildTemperature = () => {
+    console.log(" [5] Generating temperature map")
+    const startTime = performance.now();
+    this.temperatureMap = this.temperatureGenerator(this.processedHeightMap, this.sunshineMap);
+    const endTime = performance.now();
+    this.updateTime('temperature', endTime - startTime);
+    
+    // Generate temperature map image and trigger consumer if present
+    if (this.temperatureMapImageConsumer) {
+      const image = this.generateTemperatureMapImage(this.temperatureMap);
+      this.temperatureMapImageConsumer(image);
+    }
+
+    this.rebuildBiome();
+  }
+
+  private rebuildBiome = () => {
+    console.log(" [6] Generating biome map")
+    const startTime = performance.now();
+    this.biomeMap = this.biomeGenerator(this.rawHeightMap, this.humidityMap, this.temperatureMap);
+    const endTime = performance.now();
+    this.updateTime('biome', endTime - startTime);
+
+    // Generate biome map image and trigger consumer if present
+    if (this.biomeMapImageConsumer) {
+      const image = this.generateBiomeMapImage(this.biomeMap);
+      this.biomeMapImageConsumer(image);
+    }
+
+    this.rebuildColor();
+  }
+
+  
   private rebuildColor = () => {
-    console.log(" [4] Coloring map")
+    console.log(" [7] Coloring map")
     const startTime = performance.now();
     this.colorMap = this.colorGenerator(this.processedHeightMap, this.biomeMap);
     const endTime = performance.now();
@@ -351,21 +584,5 @@ export class FunctionHolder {
     }
   }
   
-  private rebuildWater = () => {
-    console.log(" [5] Filling water")
-    const startTime = performance.now();
-    this.waterMap = this.waterGenerator(this.processedHeightMap, this.biomeMap);
-    const endTime = performance.now();
-    this.waterMapConsumer(this.waterMap);
-    this.updateTime('water', endTime - startTime);
-    
-    // Generate water map image and trigger consumer if present
-    if (this.waterMapImageConsumer) {
-      const image = this.generateWaterMapImage(this.waterMap);
-      this.waterMapImageConsumer(image);
-    }
-
-    // this.rebuildVegetation();
-  }
   
 }
