@@ -1,5 +1,5 @@
 import { biomeByHeight } from './Functions';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 
 export const BiomeByHeight: React.FC<{
   fh: FunctionHolder;

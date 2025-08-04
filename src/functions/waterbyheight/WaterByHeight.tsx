@@ -1,13 +1,13 @@
 import React from 'react';
 import { useCallback, useState } from 'react';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 import { waterByHeight } from './Functions';
 
 export const WaterByHeight: React.FC<{
     fh: FunctionHolder
 }> = ({ fh }) => {
 
-  const [relativeWaterLevel, setRelativeWaterLevel] = useState(0.2);
+  const [relativeWaterLevel, setRelativeWaterLevel] = useState(0.15);
 
   const updateGenerator = useCallback((relativeWaterLevel: number) => {
     const hash = "waterbyheight " + relativeWaterLevel;

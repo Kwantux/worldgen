@@ -7,7 +7,7 @@ export function biomeByHeightAndHumidityAndTemperature(height: number, humidity:
   if (height > 0.7) {
     return BIOME_MOUNTAIN;
   }
-  if (height < 0.2) {
+  if (height < 0.15) {
     return BIOME_OCEAN;
   }
   if (temperature < 0.4) {

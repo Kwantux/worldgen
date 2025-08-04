@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Terrain } from './terrain/Terrain';
 import { FlyingCamera } from './controls/FlyingCamera';
 import { Lighting } from './scene/Lighting';
-import { FunctionHolder } from '../functions/FunctionHolder';
+import { FunctionHolder } from '../logic/FunctionHolder';
 
 export const World: React.FC<{ fh: FunctionHolder; onLoad?: () => void }> = ({ fh, onLoad }) => {
 

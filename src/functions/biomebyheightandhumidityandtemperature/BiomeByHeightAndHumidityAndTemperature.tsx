@@ -1,4 +1,4 @@
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 import { biomeByHeightAndHumidityAndTemperatureMap } from './Functions';
 
 export const BiomeByHeightAndHumidityAndTemperature: React.FC<{

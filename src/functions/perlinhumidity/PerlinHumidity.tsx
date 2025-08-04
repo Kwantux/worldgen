@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { perlinMap } from '../perlinheight/Functions';
-import { FunctionHolder } from '../FunctionHolder';
+import { perlinMap } from '../perlinsunshine/Functions';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 import { SEGMENTS } from '../../components/terrain/Terrain';
 
 export const PerlinHumidity: React.FC<{

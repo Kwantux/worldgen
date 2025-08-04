@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { colorByBiome } from './Functions';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 
 export const ColorByBiome: React.FC<{
   fh: FunctionHolder;

@@ -1,5 +1,5 @@
 import { colorByHeight } from './Functions';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 
 export const ColorByHeight: React.FC<{
   fh: FunctionHolder;

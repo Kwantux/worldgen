@@ -14,7 +14,7 @@ export function biomeByHeight(heightMap: Float32Array): Int16Array {
 }
 
 function biomeByRelativeHeight(height: number): number {
-  if (height < 0.2) {
+  if (height < 0.15) {
     return BIOME_OCEAN;
   }
   if (height < 0.6) {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FunctionHolder } from "./functions/FunctionHolder";
+import { FunctionHolder } from "./logic/FunctionHolder";
 import { World } from "./components/World";
 import { PerlinGenerator } from "./functions/perlinheight/PerlinHeight";
 import { PerlinSunshineGenerator } from "./functions/perlinsunshine/PerlinSunshine";
@@ -21,6 +21,10 @@ import { TemperatureBySunshine } from "./functions/temperaturebysunshine/Tempera
 import { TemperatureByHeight } from "./functions/temperaturebyheight/TemperatureByHeight";
 import { TemperatureByHeightAndSunshine } from "./functions/temperaturebyheightandsunshine/TemperatureByHeightAndSunshine";
 import { PerlinHumidity } from "./functions/perlinhumidity/PerlinHumidity";
+import { WarpedMapGenerator } from "./functions/warpedmap/WarpedMap";
+import { ClassicFBMGenerator } from "./functions/classicfbm/ClassicFBM";
+import { WorldSettings } from "./components/WorldSettings";
+import { div } from "three/examples/jsm/nodes/Nodes.js";
 
 const App = () => {
 
@@ -35,7 +39,8 @@ const App = () => {
     return holder;
   }, []);
 
-  const [heightMapGenerator, setHeightMapGenerator] = useState("perlin");
+  const [heightNoiseFunction, setHeightNoiseFunction] = useState("perlin");
+  const [fractalHeightMapGenerator, setFractalHeightMapGenerator] = useState("classicfbm");
   const [sunshineMapGenerator, setSunshineMapGenerator] = useState("perlin");
   const [biomeGenerator, setBiomeGenerator] = useState("biomebyheightandhumidityandtemperature");
   const [postProcessing, setPostProcessing] = useState('nopostprocessing');
@@ -119,8 +124,12 @@ const App = () => {
   })
 
   
-  const handleHeightMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setHeightMapGenerator(event.target.value);
+  const handleHeightNoiseFunctionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setHeightNoiseFunction(event.target.value);
+  };
+
+  const handleFractalHeightMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFractalHeightMapGenerator(event.target.value);
   };
 
   const handleSunshineMapGeneratorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -177,20 +186,43 @@ const App = () => {
       </button>
       <div className="overflow-y-auto" style={{ flex: "0 0 260px", backgroundColor: '#202020' }}>
         {/* Left sidebar content */}
+
+      <div style={{ width: '260px', flexShrink: 0, padding: '16px', backgroundColor: '#101010' }}>
+        <WorldSettings fh={fh} />
+      </div> 
+
         {worldRendered && (
           <div style={{ width: '260px', flexShrink: 0, padding: '16px', backgroundColor: '#101010' }}>
             <div style={{ padding: '16px', backgroundColor: '#202020' }}>
-              <h1 style={{ marginBottom: '16px' }}>Height Map</h1>
+              <h1 style={{ marginBottom: '16px' }}>Height Noise Function</h1>
               <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
-                value={heightMapGenerator} onChange={handleHeightMapGeneratorChange}>
-                <option value="noheight">None</option>
+                value={heightNoiseFunction} onChange={handleHeightNoiseFunctionChange}>
+                <option value="none">None</option>
                 <option value="perlin">Perlin Noise</option>
               </select>
-              { heightMapGenerator === "noheight" && (
+
+              { heightNoiseFunction === "none" && (
                 <NoHeight fh={fh} />
               ) }
-              { heightMapGenerator === "perlin" && (
+              { heightNoiseFunction === "perlin" && (
                 <PerlinGenerator fh={fh} />
+              ) }
+              <br/>
+              <p>Generation time: {times.height}ms</p>
+            </div>
+
+            <div style={{ padding: '16px', backgroundColor: '#202020' }}>
+              <h1 style={{ marginBottom: '16px' }}>Fractal Height Map Generator</h1>
+              <select style={{ width: '100%', padding: '8px', marginBottom: '16px', backgroundColor: '#2b2a33' }}
+                value={fractalHeightMapGenerator} onChange={handleFractalHeightMapGeneratorChange}>
+                <option value="classicfbm">Classic fBm</option>
+                <option value="warped">Warped fBm</option>
+              </select>
+              { fractalHeightMapGenerator === "classicfbm" && (
+                <ClassicFBMGenerator fh={fh} />
+              ) }
+              { fractalHeightMapGenerator === "warped" && (
+                <WarpedMapGenerator fh={fh} />
               ) }
               <br/>
               <p>Generation time: {times.height}ms</p>

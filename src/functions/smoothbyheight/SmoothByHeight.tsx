@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCallback, useState } from 'react';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 import { SEGMENTS } from '../../components/terrain/Terrain';
 
 export const SmoothByHeight: React.FC<{

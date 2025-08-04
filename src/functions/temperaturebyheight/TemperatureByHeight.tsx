@@ -1,5 +1,5 @@
 import React from 'react';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 
 export const TemperatureByHeight: React.FC<{
     fh: FunctionHolder

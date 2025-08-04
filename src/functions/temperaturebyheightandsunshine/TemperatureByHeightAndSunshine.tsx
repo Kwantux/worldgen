@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { FunctionHolder } from '../FunctionHolder';
+import { FunctionHolder } from '../../logic/FunctionHolder';
 
 export const TemperatureByHeightAndSunshine: React.FC<{
     fh: FunctionHolder
@@ -29,16 +29,10 @@ export const TemperatureByHeightAndSunshine: React.FC<{
       const minHeight = Math.min(...heightMap);
       const maxSunshine = Math.max(...sunshineMap);
       const minSunshine = Math.min(...sunshineMap);
-      console.log("SUNSHINE MINMAX")
-      console.log(maxSunshine);
-      console.log(minSunshine);
 
       for (let i = 0; i < heightMap.length; i++) {
         data[i] = (1-((heightMap[i] - minHeight) / (maxHeight - minHeight)))*weightHeight + ((sunshineMap[i]-minSunshine) / (maxSunshine - minSunshine))*weightSunshine;
       }
-      console.log("TEMP MINMAX")
-      console.log(Math.min(...data))
-      console.log(Math.max(...data))
       return data;
     }
     );

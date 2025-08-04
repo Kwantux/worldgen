@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
-import { perlinMap } from './Functions';
+import { valueNoiseMap } from './Functions';
 import { FunctionHolder } from '../../logic/FunctionHolder';
 import { SEGMENTS } from '../../components/terrain/Terrain';
 
-export const PerlinSunshineGenerator: React.FC<{
+export const ValueNoiseGenerator: React.FC<{
   fh: FunctionHolder;
 }> = ({ fh }) => {
 
-  const [seed, setSeed] = useState(1000);
+  const [seed, setSeed] = useState(0);
   const [scale, setScale] = useState(1);
-  const [scaleH, setScaleH] = useState(10);
+  const [scaleH, setScaleH] = useState(2);
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
   const [rawShift, setRawShift] = useState(0);
@@ -81,12 +81,12 @@ export const PerlinSunshineGenerator: React.FC<{
     persistence: number
   ) => {
 
-    const hash = ('perlintemperature ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
+    const hash = ('valueNoise ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
 
     // Update the generator function
-    fh.setSunshineGenerator(hash,
+    fh.setRawHeightGenerator(hash,
        () => {
-      return perlinMap(SEGMENTS, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+      return valueNoiseMap(SEGMENTS, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
     });
   }, [fh]);
 
