@@ -12,17 +12,28 @@ export const TileMesh: React.FC<{ tile: Tile }> = ({ tile }) => {
     const geo = new THREE.PlaneGeometry(size, size, segments, segments);
 
     const updateHeight = (heightMap: Float32Array) => {
-      console.log("Updating height map");
+      console.log("["+tile.getX()+","+tile.getY()+"] Updating height map");
       const vertices = geo.attributes.position.array;
+      const meshSize = tile.getMeshSize();
+      const x = tile.getX() * meshSize;
+      const y = tile.getY() * meshSize;
+      const segmentSize = meshSize / (tile.getSegments() - 1);
+      
+      // Set initial position of each vertex relative to tile position
       for (let i = 0; i < heightMap.length; i++) {
-        vertices[i * 3 + 2] = heightMap[i];
+        const gridX = (i % tile.getSegments()) * segmentSize;
+        const gridY = Math.floor(i / tile.getSegments()) * segmentSize;
+
+        vertices[i * 3] = x + gridX;  // X position
+        vertices[i * 3 + 1] = y + gridY;  // Y position
+        vertices[i * 3 + 2] = heightMap[i];  // Z position (height)
       }
       geo.computeVertexNormals();
       geo.attributes.position.needsUpdate = true;
     }
 
     const updateColors = (colorMap: Float32Array) => {
-      console.log("Updating color map");
+      console.log("["+tile.getX()+","+tile.getY()+"] Updating color map");
       geo.attributes.color = new THREE.BufferAttribute(colorMap, 3);
       geo.attributes.color.needsUpdate = true;
     }
@@ -42,10 +53,21 @@ export const TileMesh: React.FC<{ tile: Tile }> = ({ tile }) => {
     const geo = new THREE.PlaneGeometry(size, size, segments, segments);
 
     const updateHeight = (heightMap: Float32Array) => {
-      console.log("Updating water map");
+      console.log("["+tile.getX()+","+tile.getY()+"] Updating water map");
       const vertices = geo.attributes.position.array;
+      const meshSize = tile.getMeshSize();
+      const x = tile.getX() * meshSize;
+      const y = tile.getY() * meshSize;
+      const segmentSize = meshSize / (tile.getSegments() - 1);
+      
+      // Set initial position of each vertex relative to tile position
       for (let i = 0; i < heightMap.length; i++) {
-        vertices[i * 3 + 2] = heightMap[i];
+        const gridX = (i % tile.getSegments()) * segmentSize;
+        const gridY = Math.floor(i / tile.getSegments()) * segmentSize;
+        
+        vertices[i * 3] = x + gridX;  // X position
+        vertices[i * 3 + 1] = y + gridY;  // Y position
+        vertices[i * 3 + 2] = heightMap[i];  // Z position (height)
       }
       geo.computeVertexNormals();
       geo.attributes.position.needsUpdate = true;

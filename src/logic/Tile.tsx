@@ -15,9 +15,9 @@ export class Tile {
     fractalHeightMapGenerator: (heightPointFunction: (x: number, y: number) => number, segments: number, x: number, y: number, scale_h: number, scale_v: number) => Float32Array,
     heightPostProcessing: (heightMap: Float32Array, segments: number) => Float32Array,
     waterGenerator: (heightMap: Float32Array) => Float32Array,
-    sunshineGenerator: () => Float32Array,
-    humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array,
-    temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array,
+    sunshineGenerator: (segments: number, x: number, y: number) => Float32Array,
+    humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array,
+    temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array,
     biomeGenerator: (heightMap: Float32Array, humidityMap: Float32Array, temperatureMap: Float32Array) => Int16Array,
     colorGenerator: (heightMap: Float32Array, biomeMap: Int16Array) => Float32Array
   ) {
@@ -47,8 +47,6 @@ export class Tile {
     this.temperatureMap = new Float32Array(this.segments * this.segments);
     this.biomeMap = new Int16Array(this.segments * this.segments);
     this.colorMap = new Float32Array(this.segments * this.segments * 3);
-
-    this.rebuild();
   }
 
   public getX() {
@@ -104,8 +102,8 @@ export class Tile {
   }
   
   // Sunshine map generator
-  private sunshineGenerator: () => Float32Array;
-  public setSunshineGenerator(func: () => Float32Array) {
+  private sunshineGenerator: (segments: number, x: number, y: number) => Float32Array;
+  public setSunshineGenerator(func: (segments: number, x: number, y: number) => Float32Array) {
     this.sunshineGenerator = func;
     this.rebuildSunshine();
   }
@@ -118,15 +116,15 @@ export class Tile {
   }
 
   // Humidity generator
-  private humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array;
-  public setHumidityGenerator(func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+  private humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array;
+  public setHumidityGenerator(func: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array) {
     this.humidityGenerator = func;
     this.rebuildHumidity()
   }
 
   // Temperature generator
-  private temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array;
-  public setTemperatureGenerator(func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+  private temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array;
+  public setTemperatureGenerator(func: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array) {
     this.temperatureGenerator = func;
     this.rebuildTemperature()
   }
@@ -156,7 +154,9 @@ export class Tile {
   }
 
   // Height Map image consumer
-  private heightMapImageConsumer: (image: HTMLCanvasElement) => void = () => {};
+  private heightMapImageConsumer: (image: HTMLCanvasElement) => void = () => {
+    console.log("immage consumer called before it was defined");
+  };
 
   public setHeightMapImageConsumer(func: (image: HTMLCanvasElement) => void) {
     this.heightMapImageConsumer = func;
@@ -300,7 +300,7 @@ export class Tile {
 
   // Rebuild Terrain functions
 
-  private rebuild = () => {
+  public rebuild = () => {
     this.rebuildOnlyHeight();
     this.rebuildOnlySunshine();
     this.rebuildOnlyHeightPostProcessing();
@@ -316,7 +316,7 @@ export class Tile {
     const startTime = performance.now();
     this.rawHeightMap = this.fractalHeightMapGenerator(this.heightPointFunction, this.segments, this.x, this.y, this.scale_h, this.scale_v);
     const endTime = performance.now();
-    this.heightMapConsumer(this.rawHeightMap);
+    //this.heightMapConsumer(this.rawHeightMap);
     this.updateTime('height', endTime - startTime);
   }
 
@@ -328,7 +328,7 @@ export class Tile {
   private rebuildOnlySunshine = () => {
     console.log(" [1B] Generating sunshine map")
     const startTime = performance.now();
-    this.sunshineMap = this.sunshineGenerator();
+    this.sunshineMap = this.sunshineGenerator(this.segments, this.x, this.y);
     const endTime = performance.now();
     this.updateTime('sunshine', endTime - startTime);
 
@@ -388,7 +388,7 @@ export class Tile {
   private rebuildOnlyHumidity = () => {
     console.log(" [4] Generating humidity map")
     const startTime = performance.now();
-    this.humidityMap = this.humidityGenerator(this.processedHeightMap, this.waterMap);
+    this.humidityMap = this.humidityGenerator(this.processedHeightMap, this.waterMap, this.segments, this.x, this.y);
     const endTime = performance.now();
     this.updateTime('humidity', endTime - startTime);
     
@@ -407,7 +407,7 @@ export class Tile {
   private rebuildOnlyTemperature = () => {
     console.log(" [5] Generating temperature map")
     const startTime = performance.now();
-    this.temperatureMap = this.temperatureGenerator(this.processedHeightMap, this.sunshineMap);
+    this.temperatureMap = this.temperatureGenerator(this.processedHeightMap, this.sunshineMap, this.segments, this.x, this.y);
     const endTime = performance.now();
     this.updateTime('temperature', endTime - startTime);
     

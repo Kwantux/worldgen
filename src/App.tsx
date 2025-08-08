@@ -24,7 +24,6 @@ import { PerlinHumidity } from "./functions/perlinhumidity/PerlinHumidity";
 import { WarpedMapGenerator } from "./functions/warpedmap/WarpedMap";
 import { ClassicFBMGenerator } from "./functions/classicfbm/ClassicFBM";
 import { WorldSettings } from "./components/WorldSettings";
-import { div } from "three/examples/jsm/nodes/Nodes.js";
 
 const App = () => {
 
@@ -46,20 +45,29 @@ const App = () => {
   const [postProcessing, setPostProcessing] = useState('nopostprocessing');
   const [colorGenerator, setColorGenerator] = useState("colorbybiome");
   const [waterGenerator, setWaterGenerator] = useState("waterbyheight");
-  const [humidityGenerator, setHumidityGenerator] = useState("perlin");
+  const [humidityGenerator, setHumidityGenerator] = useState("perlinhumidity");
   const [temperatureGenerator, setTemperatureGenerator] = useState("temperaturebyheightandsunshine");
   // const [vegetationGenerator, setVegetationGenerator] = useState("none");
 
+  useEffect(() => {
+    // Initialize tile generation when component mounts
+    fh.generateTiles(1); // Generate a 1x1 tile grid centered at [0,0]
+  }, [fh]);
+
   const [worldRendered, setWorldRendered] = useState(false);
-  const [times, setTimes] = useState({ height: 0, sunshine: 0, biome: 0, postProcessing: 0, color: 0, water: 0 });
+  const [times, setTimes] = useState({ height: 0, sunshine: 0, humidity: 0, temperature: 0, biome: 0, postProcessing: 0, color: 0, water: 0 });
   const [showRightSidebar, setShowRightSidebar] = useState(false);
 
   useEffect(() => {
     if (showRightSidebar) {
-      fh.updateRightSidebar();
+      const tile = fh.getTile(0, 0);
+      if (tile) {
+        tile.updateRightSidebar();
+      }
     }
-  }, [showRightSidebar]);
+  }, [fh, showRightSidebar]);
 
+  // Set up image consumers for tile [0,0]
   fh.setHeightMapImageConsumer((heightMapImage) => {
     heightMapImage.style.maxWidth = '196px';
     heightMapImage.style.maxHeight = '196px';
@@ -67,6 +75,7 @@ const App = () => {
       document.getElementById('height-map-image')!.innerHTML = "";
       document.getElementById('height-map-image')!.appendChild(heightMapImage);
     }
+    console.log("Height map image consumer function called");
   })
 
   fh.setWaterMapImageConsumer((waterMapImage) => {
@@ -76,6 +85,7 @@ const App = () => {
       document.getElementById('water-map-image')!.innerHTML = "";
       document.getElementById('water-map-image')!.appendChild(waterMapImage);
     }
+    console.log("Water map image consumer function called");
   })
   
   fh.setHumidityMapImageConsumer((humidityMapImage) => {
@@ -85,6 +95,7 @@ const App = () => {
       document.getElementById('humidity-map-image')!.innerHTML = "";
       document.getElementById('humidity-map-image')!.appendChild(humidityMapImage);
     }
+    console.log("Humidity map image consumer function called");
   })
 
   fh.setSunshineMapImageConsumer((sunshineMapImage) => {
@@ -94,6 +105,7 @@ const App = () => {
       document.getElementById('sunshine-map-image')!.innerHTML = "";
       document.getElementById('sunshine-map-image')!.appendChild(sunshineMapImage);
     }
+    console.log("Sunshine map image consumer function called");
   })
 
   fh.setTemperatureMapImageConsumer((temperatureMapImage) => {
@@ -103,6 +115,7 @@ const App = () => {
       document.getElementById('temperature-map-image')!.innerHTML = "";
       document.getElementById('temperature-map-image')!.appendChild(temperatureMapImage);
     }
+    console.log("Temperature map image consumer function called");
   })
 
   fh.setBiomeMapImageConsumer((biomeMapImage) => {
@@ -112,6 +125,7 @@ const App = () => {
       document.getElementById('biome-map-image')!.innerHTML = "";
       document.getElementById('biome-map-image')!.appendChild(biomeMapImage);
     }
+    console.log("Biome map image consumer function called");
   })
 
   fh.setColorMapImageConsumer((colorMapImage) => {
@@ -121,6 +135,7 @@ const App = () => {
       document.getElementById('color-map-image')!.innerHTML = "";
       document.getElementById('color-map-image')!.appendChild(colorMapImage);
     }
+    console.log("Color map image consumer function called");
   })
 
   

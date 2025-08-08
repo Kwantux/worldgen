@@ -3,6 +3,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 
 export function FlyingCamera() {
   const { camera } = useThree();
+  camera.far = 100000;
+  camera.updateProjectionMatrix();
   const speed = 0.5;
   const keys = useRef<{ [key: string]: boolean }>({});
 

@@ -1,15 +1,26 @@
 'use strict';
 
+const cache: Map<string, Float32Array> = new Map();
+
 export function classicFbmMap(heightNoiseFunction: (x: number, y: number) => number, segments: number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1): Float32Array {
+  const key = "classicfbm " + segments + " " + x + " " + y + " " + scaleH + " " + scaleV + " " + rawScaleV + " " + rawShift + " " + exponent + " " + octaves + " " + lacunarity + " " + persistence + " " + lacunarityScale + " " + persistenceScale;
+  if (cache.has(key)) {
+    return cache.get(key)!;
+  }
   const data = new Float32Array(segments * segments);
 
-  for (let iy = segments * y; iy < segments * (y + 1); iy++) {
-    for (let ix = segments * x; ix < segments * (x + 1); ix++) {
-      data[ix * segments + iy] = ( octave(heightNoiseFunction, ix / scaleH, iy / scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
+  for (let i = 0; i < segments; i++) {
+    for (let j = 0; j < segments; j++) {
+      const ix = j + x * segments;
+      const iy = i + y * segments;
+      data[i * segments + j] = ( octave(heightNoiseFunction, ix / scaleH, iy / scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
     }
   }
+
+  cache.set(key, data);
   return data;
 }
+
 
 function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: number, lacunarity: number, persistence: number, lacunarityScale: number, persistenceScale: number, rawScaleV: number, rawShift: number, exponent: number) {
 
@@ -25,5 +36,6 @@ function octave(heightNoiseFunction: (x: number, y: number) => number, x: number
     frequency *= lacunarity * (lacunarityScale ** i);
     amplitude *= persistence * (persistenceScale ** i);
   }
+
   return sum;
 }

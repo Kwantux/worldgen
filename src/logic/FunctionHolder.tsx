@@ -2,24 +2,50 @@ import { SEGMENTS } from "../components/terrain/Terrain";
 import { Tile } from "./Tile";
 
 export class FunctionHolder {
-
   // Settings
   private segments = 512;
+  private tileUpdateCallbacks: Set<() => void> = new Set();
+  private updateCallbacks: Set<() => void> = new Set();
 
-  public setSegments(segments: number) {
+  public setSegments(segments: number): void {
     this.segments = segments;
     this.tiles.forEach(tile => tile.setSegments(segments));
   }
 
-  public getSegments() {
+  public getSegments(): number {
     return this.segments;
   }
 
   // Tile Management
   public tiles: Map<[number, number], Tile> = new Map();
 
-  public addTile(position: [number, number], scale_h: number, scale_v: number) {
+  public addTileUpdateCallback(callback: () => void): void {
+    this.tileUpdateCallbacks.add(callback);
+  }
 
+  public removeTileUpdateCallback(callback: () => void): void {
+    this.tileUpdateCallbacks.delete(callback);
+  }
+
+  private notifyTileUpdate(): void {
+    console.log("Notifying tile update");
+    this.tileUpdateCallbacks.forEach(callback => callback());
+    this.updateCallbacks.forEach(callback => callback());
+  }
+
+  public forceUpdate(): void {
+    this.updateCallbacks.forEach(callback => callback());
+  }
+
+  public addUpdateCallback(callback: () => void): void {
+    this.updateCallbacks.add(callback);
+  }
+
+  public removeUpdateCallback(callback: () => void): void {
+    this.updateCallbacks.delete(callback);
+  }
+
+  public addTile(position: [number, number], scale_h: number, scale_v: number): void {
     const tile = new Tile(position[0], position[1], scale_h, scale_v, this.segments,
       this.heightPointFunction,
       this.fractalHeightMapGenerator,
@@ -37,6 +63,7 @@ export class FunctionHolder {
 
     // Set image consumers
     if (position[0] === 0 && position[1] === 0) {
+      console.log("[FH] Setting image consumers");
       tile.setBiomeMapImageConsumer(this.biomeMapImageConsumer);
       tile.setColorMapImageConsumer(this.colorMapImageConsumer);
       tile.setWaterMapImageConsumer(this.waterMapImageConsumer);
@@ -45,28 +72,32 @@ export class FunctionHolder {
       tile.setHumidityMapImageConsumer(this.humidityMapImageConsumer);
       tile.setHeightMapImageConsumer(this.heightMapImageConsumer);
     }
+
+    tile.rebuild();
+
+    // Notify about tile update
+    this.notifyTileUpdate();
   }
 
-  public getTiles() {
+  public getTiles(): Map<[number, number], Tile> {
     return this.tiles;
   }
 
-  public getTile(x: number, y: number) {
+  public getTile(x: number, y: number): Tile | undefined {
     return this.tiles.get([x, y]);
   }
 
-  public generateTiles(radius: number) {
+  public generateTiles(radius: number): void {
     this.tiles.clear();
     for (let i = Math.ceil(-radius/2); i < Math.ceil(radius/2); i++) {
       for (let j = Math.ceil(-radius/2); j < Math.ceil(radius/2); j++) {
-        console.log("Generating tile [" + i + ", " + j + "]");
+        console.log("Generating tile [" + i + ", " + j + "]");     
         this.addTile([i, j], 1, 1);
       }
     }
     console.log("Generated " + this.tiles.size + " tiles");
-  }
-
-  // Function hashes
+    this.notifyTileUpdate();
+  } // Function hashes
   private heightPointFunctionHash = "";
   private fractalHeightMapGeneratorHash = "";
   private heightPostProcessingHash = "";
@@ -109,9 +140,9 @@ export class FunctionHolder {
   }
   
   // Sunshine map generator
-  private sunshineGenerator: () => Float32Array 
+  private sunshineGenerator: (segments: number, x: number, y: number) => Float32Array 
   = () => new Float32Array(SEGMENTS * SEGMENTS);
-  public setSunshineGenerator(hash: string, func: () => Float32Array) {
+  public setSunshineGenerator(hash: string, func: (segments: number, x: number, y: number) => Float32Array) {
     if (this.sunshineGeneratorHash === hash) return;
     this.sunshineGeneratorHash = hash;
     this.sunshineGenerator = func;
@@ -131,11 +162,11 @@ export class FunctionHolder {
   }
 
   // Humidity generator
-  private humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array
+  private humidityGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array
   = () => {
     return new Float32Array(SEGMENTS * SEGMENTS);
   };
-  public setHumidityGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+  public setHumidityGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array) {
     if (this.humidityGeneratorHash === hash) return;
     this.humidityGeneratorHash = hash;
     this.humidityGenerator = func;
@@ -143,11 +174,11 @@ export class FunctionHolder {
   }
 
   // Temperature generator
-  private temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array
+  private temperatureGenerator: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array
   = () => {
     return new Float32Array(SEGMENTS * SEGMENTS);
   };
-  public setTemperatureGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array) => Float32Array) {
+  public setTemperatureGenerator(hash: string, func: (heightMap: Float32Array, waterMap: Float32Array, segments: number, x: number, y: number) => Float32Array) {
     if (this.temperatureGeneratorHash === hash) return;
     this.temperatureGeneratorHash = hash;
     this.temperatureGenerator = func;

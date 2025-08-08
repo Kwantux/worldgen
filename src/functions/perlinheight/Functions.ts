@@ -2,7 +2,7 @@
 
 import Rand from "rand-seed";
 
-let ptables: Map<number, number[]> = new Map();
+const ptables: Map<number, number[]> = new Map();
 
 // returns value between -1 and 1
 export function perlin(x: number, y: number, seed: number, scaleH: number, segments: number): number {
@@ -19,11 +19,11 @@ export function perlin(x: number, y: number, seed: number, scaleH: number, segme
     const yg: number = y * scaleH - yi;
   
     // calculate the gradients to the 4 closest grid points
-    const n00: number = gradient(ptl(ptl(xi % segments, ptable) + yi, ptable), xg, yg);
-    const n01: number = gradient(ptl(ptl(xi % segments, ptable) + yi + 1, ptable), xg, yg - 1);
-    const n11: number = gradient(ptl(ptl((xi + 1) % segments, ptable) + yi + 1, ptable), xg - 1, yg - 1);
-    const n10: number = gradient(ptl(ptl((xi + 1) % segments, ptable) + yi, ptable), xg - 1, yg);
-    
+    const n00: number = gradient(ptl(ptl(xi, ptable) + yi, ptable), xg, yg);
+    const n01: number = gradient(ptl(ptl(xi, ptable) + yi + 1, ptable), xg, yg - 1);
+    const n11: number = gradient(ptl(ptl((xi + 1), ptable) + yi + 1, ptable), xg - 1, yg - 1);
+    const n10: number = gradient(ptl(ptl((xi + 1), ptable) + yi, ptable), xg - 1, yg);
+
     // apply fade function to distance coordinates
     const xf: number = fade(xg);
     const yf: number = fade(yg);
@@ -31,6 +31,7 @@ export function perlin(x: number, y: number, seed: number, scaleH: number, segme
     // apply linear interpolation between the 4 gradients by the faded distances
     const x1: number = lerp(n00, n10, xf);
     const x2: number = lerp(n01, n11, xf);
+
     return lerp(x1, x2, yf);
 }
   

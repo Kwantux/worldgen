@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { perlinMap } from './Functions';
 import { FunctionHolder } from '../../logic/FunctionHolder';
-import { SEGMENTS } from '../../components/terrain/Terrain';
 
 export const PerlinSunshineGenerator: React.FC<{
   fh: FunctionHolder;
@@ -85,8 +84,8 @@ export const PerlinSunshineGenerator: React.FC<{
 
     // Update the generator function
     fh.setSunshineGenerator(hash,
-       () => {
-      return perlinMap(SEGMENTS, seed, scaleH * scale, scaleV * scale, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+       (segments: number, x: number, y: number) => {
+      return perlinMap(segments, x, y, seed, scaleH * scale, scaleV * scale);
     });
   }, [fh]);
 
