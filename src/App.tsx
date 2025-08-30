@@ -24,6 +24,7 @@ import { PerlinHumidity } from "./functions/perlinhumidity/PerlinHumidity";
 import { WarpedMapGenerator } from "./functions/warpedmap/WarpedMap";
 import { ClassicFBMGenerator } from "./functions/classicfbm/ClassicFBM";
 import { WorldSettings } from "./components/WorldSettings";
+import { VectorTectonics } from "./functions/vectornoise/VectorNoise";
 
 const App = () => {
 
@@ -232,12 +233,16 @@ const App = () => {
                 value={fractalHeightMapGenerator} onChange={handleFractalHeightMapGeneratorChange}>
                 <option value="classicfbm">Classic fBm</option>
                 <option value="warped">Warped fBm</option>
+                <option value="vector">Vector Tectonics</option>
               </select>
               { fractalHeightMapGenerator === "classicfbm" && (
                 <ClassicFBMGenerator fh={fh} />
               ) }
               { fractalHeightMapGenerator === "warped" && (
                 <WarpedMapGenerator fh={fh} />
+              ) }
+              { fractalHeightMapGenerator === "vector" && (
+                <VectorTectonics fh={fh} />
               ) }
               <br/>
               <p>Generation time: {times.height}ms</p>
@@ -403,6 +408,17 @@ const App = () => {
         <div className="overflow-y-auto" style={{ flex: "0 0 228px", backgroundColor: '#202020', position: 'relative' }}>
         {worldRendered && (
           <div style={{ padding: '16px', backgroundColor: '#202020' }}>
+          <p>Vector Map</p>
+          <div id="vector-map-image" style={{ 
+            width: '200px', 
+            height: '200px',
+            marginTop: '16px',
+            backgroundColor: '#101010',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} />
+          <br/>
           <p>Raw Height map</p>
           <div id="height-map-image" style={{ 
             width: '200px', 

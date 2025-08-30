@@ -3,7 +3,7 @@ import { Tile } from "./Tile";
 
 export class FunctionHolder {
   // Settings
-  private segments = 512;
+  private segments = SEGMENTS;
   private tileUpdateCallbacks: Set<() => void> = new Set();
   private updateCallbacks: Set<() => void> = new Set();
 

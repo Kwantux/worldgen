@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FunctionHolder } from '../logic/FunctionHolder';
+import { SEGMENTS } from './terrain/Terrain';
 
 export const WorldSettings: React.FC<{
     fh: FunctionHolder
@@ -7,7 +8,7 @@ export const WorldSettings: React.FC<{
 
   const [tiles, setTiles] = useState(1);
 
-  const [segments, setSegments] = useState(512);
+  const [segments, setSegments] = useState(SEGMENTS);
 
   const handleTilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTiles(e.target.valueAsNumber);

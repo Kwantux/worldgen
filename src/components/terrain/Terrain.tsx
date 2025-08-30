@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { FunctionHolder } from '../../logic/FunctionHolder';
 import { TileMesh } from './TileMesh';
 
-export const SEGMENTS = 512;
+export const SEGMENTS = 64;
 
 export const Terrain: React.FC<{ fh: FunctionHolder; onLoad?: () => void }> = ({ fh, onLoad }) => {
   useEffect(() => {

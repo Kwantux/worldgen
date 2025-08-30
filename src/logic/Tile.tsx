@@ -313,10 +313,13 @@ export class Tile {
 
   private rebuildOnlyHeight = () => {
     console.log(" [1A] Generating raw height map")
+    console.log(">>>")
     const startTime = performance.now();
     this.rawHeightMap = this.fractalHeightMapGenerator(this.heightPointFunction, this.segments, this.x, this.y, this.scale_h, this.scale_v);
     const endTime = performance.now();
-    //this.heightMapConsumer(this.rawHeightMap);
+    console.log("<<<")
+    // this.heightMapConsumer(this.rawHeightMap);
+    console.log(endTime - startTime + " ms");
     this.updateTime('height', endTime - startTime);
   }
 
