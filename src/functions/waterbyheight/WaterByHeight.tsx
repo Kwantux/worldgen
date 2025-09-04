@@ -7,29 +7,29 @@ export const WaterByHeight: React.FC<{
     fh: FunctionHolder
 }> = ({ fh }) => {
 
-  const [relativeWaterLevel, setRelativeWaterLevel] = useState(0.15);
+  const [waterLevel, setWaterLevel] = useState(30);
 
-  const updateGenerator = useCallback((relativeWaterLevel: number) => {
-    const hash = "waterbyheight " + relativeWaterLevel;
+  const updateGenerator = useCallback((waterLevel: number) => {
+    const hash = "waterbyheight " + waterLevel;
     fh.setWaterGenerator(hash,
     (heightMap: Float32Array) => {
-      return waterByHeight(heightMap, relativeWaterLevel);
+      return waterByHeight(heightMap, waterLevel);
     }
     );
   }, [fh]);
   
   const handleWaterLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRelativeWaterLevel(e.target.valueAsNumber);
+    setWaterLevel(e.target.valueAsNumber);
     updateGenerator(e.target.valueAsNumber);
   };
   
-  updateGenerator(relativeWaterLevel);
+  updateGenerator(waterLevel);
 
 
   return (
     <div>
-      <label>Relative water level:</label>
-      <input type="number" min="0" max="1" step="0.01" value={relativeWaterLevel} onChange={handleWaterLevelChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
+      <label>Water level:</label>
+      <input type="number" min="0" max="10000" step="5" value={waterLevel} onChange={handleWaterLevelChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
     </div>
   );
 

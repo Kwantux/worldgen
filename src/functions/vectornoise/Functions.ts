@@ -14,11 +14,26 @@ export function vectorTectonics(segments: number, x: number, y: number, scaleH: 
 
   const vectorMapImage = generateVectorMapImage(vectors);  
   vectorMapImage.style.maxWidth = '196px';
-    vectorMapImage.style.maxHeight = '196px';
-    if (document.getElementById('vector-map-image')) {
-      document.getElementById('vector-map-image')!.innerHTML = "";
-      document.getElementById('vector-map-image')!.appendChild(vectorMapImage);
-    }
+  vectorMapImage.style.maxHeight = '196px';
+  if (document.getElementById('vector-map-image')) {
+    document.getElementById('vector-map-image')!.innerHTML = "";
+    document.getElementById('vector-map-image')!.appendChild(vectorMapImage);
+  }
+
+  const vectorAt = (x: number, y: number) => {
+    const ix1 = Math.floor(x);
+    const iy1 = Math.floor(y);
+    const ix2 = Math.floor(ix1 / 2);
+    const iy2 = Math.floor(iy1 / 2);
+    const vx1 = vectors[(ix1 * segments + iy1) * 2];
+    const vy1 = vectors[(ix1 * segments + iy1) * 2 + 1];
+    const vx2 = vectors[(ix2 * segments + iy2) * 2];
+    const vy2 = vectors[(ix2 * segments + iy2) * 2 + 1];
+
+    // console.log(vx1, vy1, vx2, vy2);
+    return [vx1 + vx2*2, vy1 + vy2*2];
+    return [vx1, vy1];
+  }
   
   for (let i = 0; i < segments; i++) {
 
@@ -31,10 +46,7 @@ export function vectorTectonics(segments: number, x: number, y: number, scaleH: 
       
       for (let k = 0; k < radius; k++) {
         for (let l = 0; l < radius; l++) {
-          const ix = j + x * segments + l;
-          const iy = i + y * segments + k;
-          const vx = vectors[(ix * segments + iy) * 2];
-          const vy = vectors[(ix * segments + iy) * 2 + 1];
+          const [vx, vy] = vectorAt(j + x * segments + l, i + y * segments + k);
           if (k > 0) sumXP += vx;
           if (k < 0) sumXN += vx;
           if (l > 0) sumYP += vy;
@@ -174,7 +186,7 @@ export function voronoiVectorMap(seed: number, segments: number, x: number, y: n
 
 function genCenters(seed: number, segments: number, x: number, y: number, centersPerSegment: number): number[][] {
   const pt = new PermutationTable(seed, segments);
-  const amountCenters = Math.round((pt.l(pt.l(Math.round(x)) + pt.l(Math.round(y)) % segments)*centersPerSegment + segments*centersPerSegment);
+  const amountCenters = Math.round((pt.l(pt.l(Math.round(x)) + pt.l(Math.round(y)) % segments)*centersPerSegment + segments*centersPerSegment));
 
   const centers: number[][] = new Array<number[]>(amountCenters);
 
@@ -204,104 +216,3 @@ function genCenter(x: number, y: number, seed: number, segments: number): number
   result[1] += y * segments;
   return result;
 } 
-
-export function perlinVectorMap(seed: number, segments: number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1): Float32Array {
-
-  const data = new Float32Array(segments * segments * 8); // grid with (segments*2)^2 vectors and 2 values per vector
-  
-  
-  for (let i = 0; i < segments*2; i++) {
-    for (let j = 0; j < segments*2; j++) {
-      const ix = j + (x-0.5) * segments;
-      const iy = i + (y-0.5) * segments;
-      const v = vectorOctave(ix / scaleH, iy / scaleH, seed, segments, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent);
-      data[(i * segments * 2 + j) * 2] = v[0] * scaleV;
-      data[(i * segments * 2 + j) * 2 + 1] = v[1] * scaleV;
-    }
-  }
-  
-  return data;
-}
-
-function vectorOctave(x: number, y: number, seed: number, segments: number, octaves: number, lacunarity: number, persistence: number, lacunarityScale: number, persistenceScale: number, rawScaleV: number, rawShift: number, exponent: number) {
-
-  let frequency: number = 1;
-  let amplitude: number = 1;
-  let sumX: number = 0;
-  let sumY: number = 0;
-
-  // Iterate through each octave and sum their results together
-  // Each octave frequency and persistance grow/shrink exponentially
-  for (let i = 0; i <= octaves; i++) {
-    const raw: number[] = vector(x * frequency, y * frequency, seed, segments);
-    sumX += (((raw[0]+1) * rawScaleV + rawShift) ** exponent) * amplitude;
-    sumY += (((raw[1]+1) * rawScaleV + rawShift) ** exponent) * amplitude;
-    frequency *= lacunarity * (lacunarityScale ** i);
-    amplitude *= persistence * (persistenceScale ** i);
-  }
-
-  return [sumX, sumY];
-}
-
-
-// const ptables: Map<number, number[]> = new Map();
-
-// // returns value between -1 and 1
-// export function vector(x: number, y: number, seed: number, segments: number) {
-
-//     // get permutation table
-//     const ptable = genPtable(seed, segments);
-
-//     // grid coordinates
-//     const xi: number = Math.floor(x);
-//     const yi: number = Math.floor(y);
-  
-//     // distance vector coordinates
-//     const xg: number = x - xi;
-//     const yg: number = y - yi;
-  
-//     // calculate the gradients to the 4 closest grid points
-//     const nx00: number = gradient(ptl(ptl(xi, ptable) + yi, ptable), xg, yg);
-//     const nx01: number = gradient(ptl(ptl(xi, ptable) + yi + 1, ptable), xg, yg - 1);
-//     const nx11: number = gradient(ptl(ptl((xi + 1), ptable) + yi + 1, ptable), xg - 1, yg - 1);
-//     const nx10: number = gradient(ptl(ptl((xi + 1), ptable) + yi, ptable), xg - 1, yg);
-
-//     const ny00: number = gradient(ptl(ptl(ptl(xi, ptable) + yi, ptable), ptable), xg, yg);
-//     const ny01: number = gradient(ptl(ptl(ptl(xi, ptable) + yi + 1, ptable), ptable), xg, yg - 1);
-//     const ny11: number = gradient(ptl(ptl(ptl((xi + 1), ptable) + yi + 1, ptable), ptable), xg - 1, yg - 1);
-//     const ny10: number = gradient(ptl(ptl(ptl((xi + 1), ptable) + yi, ptable), ptable), xg - 1, yg);
-
-//     // apply fade function to distance coordinates
-//     const xf: number = fade(xg);
-//     const yf: number = fade(yg);
-
-//     // apply linear interpolation between the 4 gradients by the faded distances
-//     const xx1: number = lerp(nx00, nx10, xf);
-//     const xx2: number = lerp(nx01, nx11, xf);
-
-//     const xy1: number = lerp(ny00, ny10, xf);
-//     const xy2: number = lerp(ny01, ny11, xf);
-
-//     const vx: number = lerp(xx1, xx2, yf);
-//     const vy: number = lerp(xy1, xy2, yf);
-
-//     return [vx, vy];
-// }
-  
-// // linear interpolation
-// function lerp(a: number, b: number, x: number): number {
-//     return a + x * (b - a);
-// }
-  
-// // smoothing function
-// // only to be used for numbers between 0 and 1
-// function fade(f: number): number {
-//     return 6 * f ** 5 - 15 * f ** 4 + 10 * f ** 3;
-// }
-  
-// // calculate the gradient vectors and dot product
-// function gradient(c: number, x: number, y: number): number {
-//   const vectors: number[][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-//   const gradient_co: number[] = vectors[c % 4];
-//   return gradient_co[0] * x + gradient_co[1] * y;
-// }

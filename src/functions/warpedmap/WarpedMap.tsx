@@ -11,13 +11,13 @@ export const WarpedMapGenerator: React.FC<{
   const [scaleV, setScaleV] = useState(0.04);
   const [rawScaleV, setRawScaleV] = useState(1);
   const [rawShift, setRawShift] = useState(0);
-  const [exponent, setExponent] = useState(4);
-  const [octaves, setOctaves] = useState(5);
-  const [lacunarity, setLacunarity] = useState(0.4);
-  const [persistence, setPersistence] = useState(3.5);
-  const [lacunarityScale, setLacunarityScale] = useState(1);
-  const [persistenceScale, setPersistenceScale] = useState(1);
-  const [persistenceIncByHeight, setPersistenceIncByHeight] = useState(0.15);
+  const [exponent, setExponent] = useState(8);
+  const [octaves, setOctaves] = useState(7);
+  const [lacunarity, setLacunarity] = useState(0.35);
+  const [persistence, setPersistence] = useState(3.3);
+  const [lacunarityScale, setLacunarityScale] = useState(0.98);
+  const [persistenceScale, setPersistenceScale] = useState(1.05);
+  const [persistenceIncByHeight, setPersistenceIncByHeight] = useState(0.45);
 
   const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScale(e.target.valueAsNumber);
