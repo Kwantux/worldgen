@@ -1,4 +1,4 @@
-import { BIOME_COLORS } from "../functions/colorbybiome/Functions";
+import { BIOME_COLORS } from "../generators/color/colorbybiome/Functions";
 
 export const generateHeightMapImage = (heightMap: Float32Array): HTMLCanvasElement => {
   const canvas = document.createElement('canvas');

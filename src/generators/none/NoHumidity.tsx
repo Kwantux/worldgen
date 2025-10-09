@@ -1,0 +1,19 @@
+import React from 'react';
+import { FunctionHolder } from '../../logic/FunctionHolder';
+import { SEGMENTS } from '../../components/terrain/Tile';
+
+const noHumidity = () => {
+  return new Float32Array(SEGMENTS * SEGMENTS);
+}
+
+export const NoHumidity: React.FC<{
+    fh: FunctionHolder
+}> = ({ fh }) => {
+  
+  fh.setHumidityGenerator("none", noHumidity);
+
+  return (
+    <div>
+    </div>
+  );
+};
