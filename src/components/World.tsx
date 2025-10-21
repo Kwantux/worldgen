@@ -10,7 +10,6 @@ export const World: React.FC<{ finalAssembly: FinalAssembly}> = ({ finalAssembly
   const [_, updateTrigger] = useState({});
 
   const triggerUpdate = () => {
-    console.log("Triggering update of tiles");
     updateTrigger({});
   };
 

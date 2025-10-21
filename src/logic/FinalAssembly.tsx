@@ -10,6 +10,7 @@ export default class FinalAssembly extends Generator<WorldData> {
 
     private tiles: Map<ScaledCoordinate, Tile> = new Map();
     private radius: number = 1;
+    private levelsOfDetail = 1;
 
     private updateFunction?: () => void;
 
@@ -20,12 +21,22 @@ export default class FinalAssembly extends Generator<WorldData> {
     protected settingsPanel(onUpdate?: () => void): JSX.Element {
         return (
             <div>
-                <label>Radius of World (in Tiles):</label>
+                <label>Ring Size:</label>
                 <input
                     type="number"
                     value={this.radius}
                     onChange={(e) => {
                         this.setRadius((e.target as HTMLInputElement).valueAsNumber);
+                        onUpdate?.();
+                    }}
+                    style={{ backgroundColor: '#2b2a33', padding: '4px', width: '100%' }}
+                />
+                <label>Levels of Detail:</label>
+                <input
+                    type="number"
+                    value={this.levelsOfDetail}
+                    onChange={(e) => {
+                        this.setLevelsOfDetail((e.target as HTMLInputElement).valueAsNumber);
                         onUpdate?.();
                     }}
                     style={{ backgroundColor: '#2b2a33', padding: '4px', width: '100%' }}
@@ -41,10 +52,9 @@ export default class FinalAssembly extends Generator<WorldData> {
     }
 
     private constructor() {
-        console.log(Generator.availableGenerators);
         super(GeneratorType.FinalAssembly, new Map(
             [
-                [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Warped fBm")!],
+                [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Classic fBm")!],
                 [GeneratorType.Color, Generator.availableGenerators.get(GeneratorType.Color)!.get("Color: by Height")!]
             ]
         ));
@@ -89,17 +99,34 @@ export default class FinalAssembly extends Generator<WorldData> {
             return;
         }
         this.radius = newRadius;
-        this.generateTiles(this.radius);
+        this.generateTiles(this.radius, this.levelsOfDetail);
         this.update();
     }
 
-    private generateTiles(radius: number): void {
+    private setLevelsOfDetail(newLevelsOfDetail: number): void {
+        if (Number.isNaN(newLevelsOfDetail) || newLevelsOfDetail < 0) {
+            return;
+        }
+        this.levelsOfDetail = newLevelsOfDetail;
+        this.generateTiles(this.radius, this.levelsOfDetail);
+        this.update();
+    }
+
+    private generateTiles(ringSize: number, levelsOfDetail: number): void {
         this.tiles.clear();
-        for (let y = -radius; y <= radius; y++) {
-            for (let x = -radius; x <= radius; x++) {
-                const coord: ScaledCoordinate = { coordinate: [x, y], levelOfDetail: new LevelOfDetail(0) };
-                const tile = new Tile(coord);
-                this.tiles.set(coord, tile);
+        for (let i = 0; i < levelsOfDetail; i++) {
+            const upperBoundry = 2*ringSize -1
+            const lowerBoundry = -2*ringSize
+            for (let y = lowerBoundry; y <= upperBoundry; y++) {
+                for (let x = lowerBoundry; x <= upperBoundry; x++) {
+                    if (i > 0 && x > -ringSize-1 && x < ringSize && y > -ringSize-1 && y < ringSize) {
+                        continue;
+                    }
+                    const coord: ScaledCoordinate = { coordinate: [x, y], levelOfDetail: new LevelOfDetail(i) };
+                    console.log(coord);
+                    const tile = new Tile(coord);
+                    this.tiles.set(coord, tile);
+                }
             }
         }
     }
@@ -108,7 +135,6 @@ export default class FinalAssembly extends Generator<WorldData> {
      * Rebuilds all tiles and pushes data to the rendered Tile components
      */
     public update() {
-        console.log("[FinalAssembly] Updating tiles");
         // Rebuild and push data for all known coordinates
         this.tiles.forEach((tile, coordinates) => {
             const [heightMap, colorMap] = this.buildTile(coordinates);

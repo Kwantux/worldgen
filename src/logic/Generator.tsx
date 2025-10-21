@@ -1,4 +1,3 @@
-import { registerGenerators } from "../generators/GeneratorRegistration";
 import { ScaledCoordinate } from "../util/Types";
 
 export enum GeneratorType {
@@ -82,10 +81,7 @@ export default abstract class Generator<T> {
   }
 
   private static updateDependents(generator: Generator<any>): void {
-    console.log("[" + generator.meta().name + "] Updating dependents");
-    console.log(Generator.reverseDependencies);
     Generator.reverseDependencies.get(generator.type)?.forEach(dependent => {
-      console.log("  " + dependent.meta().name + "found");
       dependent.update();
     });
   } 
@@ -184,7 +180,6 @@ export default abstract class Generator<T> {
    * Rebuilds this tile
    */
   public update(): void {
-    console.log("[" + this.meta().name + "] Updating");
     this.tileCache.forEach((_, coordinates) => {
       this.tileCache.set(coordinates, this.buildTile(coordinates));
     });
