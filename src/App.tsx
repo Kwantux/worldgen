@@ -6,12 +6,17 @@ import { registerGenerators } from "./generators/GeneratorRegistration";
 const App = () => {
 
   const [showRightSidebar, setShowRightSidebar] = useState(false);  
+  const [_, updateTrigger] = useState({});
 
   registerGenerators();
 
   const fA = useMemo(() => {
     return FinalAssembly.getInstance();
   }, []);
+
+  const triggerUpdate = () => {
+    updateTrigger({});
+  };
 
   return (
     <div className="bg-gray-900" style={{ display: 'flex', flexDirection: 'row', height: '100vh', color: 'white'}}>
@@ -35,7 +40,7 @@ const App = () => {
       <div className="overflow-y-auto" style={{ flex: "0 0 260px", backgroundColor: '#080808', padding: '10px'}}>
         {
           // Left sidebar
-          fA.panel([])
+          fA.panel([], triggerUpdate)
         }
       </div>
       <div className="overflow-hidden" style={{ flex: 1, width: '1000px' }}>

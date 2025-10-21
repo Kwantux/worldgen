@@ -90,6 +90,8 @@ export class ClassicFBM extends Generator<Float32Array> {
       persistenceScale
     } = this.state;
 
+    // console.log("GENERATING", this.state);
+
     return classicFbmMap(
       heightNoiseFunction,
       SEGMENTS,
@@ -108,12 +110,13 @@ export class ClassicFBM extends Generator<Float32Array> {
     );
   }
 
-  private updateState(updates: Partial<ClassicFBMState>) {
+  private updateState(updates: Partial<ClassicFBMState>, onUpdate?: () => void) {
     this.state = { ...this.state, ...updates };
     this.update();
+    onUpdate?.();
   }
 
-  public settingsPanel() {
+  public settingsPanel(onUpdate?: () => void) {
     const { 
       scale, 
       scaleH, 
@@ -138,7 +141,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="10"
             step="0.1"
             value={scale}
-            onChange={(e) => this.updateState({ scale: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ scale: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
         
@@ -150,7 +153,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="10"
             step="0.1"
             value={scaleH}
-            onChange={(e) => this.updateState({ scaleH: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ scaleH: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -162,7 +165,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="0.1"
             step="0.0001"
             value={scaleV}
-            onChange={(e) => this.updateState({ scaleV: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ scaleV: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -174,7 +177,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="5"
             step="0.1"
             value={rawScaleV}
-            onChange={(e) => this.updateState({ rawScaleV: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ rawScaleV: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -186,7 +189,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="2"
             step="0.01"
             value={rawShift}
-            onChange={(e) => this.updateState({ rawShift: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ rawShift: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -198,7 +201,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="16"
             step="0.1"
             value={exponent}
-            onChange={(e) => this.updateState({ exponent: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ exponent: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -210,7 +213,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="10"
             step="1"
             value={octaves}
-            onChange={(e) => this.updateState({ octaves: parseInt(e.target.value) })}
+            onChange={(e) => this.updateState({ octaves: parseInt(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -222,7 +225,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="2"
             step="0.01"
             value={lacunarity}
-            onChange={(e) => this.updateState({ lacunarity: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ lacunarity: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -234,7 +237,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="5"
             step="0.1"
             value={persistence}
-            onChange={(e) => this.updateState({ persistence: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ persistence: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -246,7 +249,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="2"
             step="0.01"
             value={lacunarityScale}
-            onChange={(e) => this.updateState({ lacunarityScale: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ lacunarityScale: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
 
@@ -258,7 +261,7 @@ export class ClassicFBM extends Generator<Float32Array> {
             max="2"
             step="0.01"
             value={persistenceScale}
-            onChange={(e) => this.updateState({ persistenceScale: parseFloat(e.target.value) })}
+            onChange={(e) => this.updateState({ persistenceScale: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
       </div>

@@ -25,24 +25,28 @@ export type GeneratorMeta = {
 export default abstract class Generator<T> {
 
   protected static availableGenerators = new Map<GeneratorType, Map<GeneratorImplementation, Generator<any>>>();
+  private static reverseDependencies: Map<GeneratorType, Generator<any>[]> = new Map();
+  protected static dependencies: Map<GeneratorType, Generator<any>> = new Map();
 
   static {
     for (const type of Object.values(GeneratorType)) {
       Generator.availableGenerators.set(type, new Map());
+      Generator.reverseDependencies.set(type, []);
     }
   }
 
-  private static reverseDependencies: Map<Generator<any>, Generator<any>[]> = new Map();
 
   protected readonly type: GeneratorType;
-  protected dependencies: Map<GeneratorType, Generator<any>> = new Map();
 
   protected constructor(type: GeneratorType, defaultDependencies: Map<GeneratorType, Generator<any>>) {
     this.type = type;
-    this.dependencies = defaultDependencies;
-    this.dependencies.forEach(dependency => {
+
+    defaultDependencies.forEach(dependency => {
+      if (!Generator.dependencies.has(dependency.type)) {
+        Generator.dependencies.set(dependency.type, dependency);
+      }
       console.log("Adding dependency: " + dependency.type + " to " + this.meta().name);
-      Generator.reverseDependencies.get(dependency)?.push(this);
+      Generator.reverseDependencies.get(dependency.type)?.push(this);
     });
   }
 
@@ -60,7 +64,11 @@ export default abstract class Generator<T> {
 
   public static dependenciesOf(generator: Generator<any>): Set<Generator<any>> {
     let generators: Set<Generator<any>> = new Set();
-    generator.dependencies.forEach(dependency => {
+    generator.dependencyTypes().forEach(dependencyType => {
+      const dependency = Generator.dependencies.get(dependencyType);
+      if (!dependency) {
+        throw new Error("Dependency " + dependencyType + " not found");
+      }
       generators.add(dependency);
       Generator.dependenciesOf(dependency).forEach(dependency => {
         generators.add(dependency);
@@ -69,8 +77,15 @@ export default abstract class Generator<T> {
     return generators;
   }
 
+  public dependencies(): Set<Generator<any>> {
+    return Generator.dependenciesOf(this);
+  }
+
   private static updateDependents(generator: Generator<any>): void {
-    Generator.reverseDependencies.get(generator)?.forEach(dependent => {
+    console.log("[" + generator.meta().name + "] Updating dependents");
+    console.log(Generator.reverseDependencies);
+    Generator.reverseDependencies.get(generator.type)?.forEach(dependent => {
+      console.log("  " + dependent.meta().name + "found");
       dependent.update();
     });
   } 
@@ -80,17 +95,17 @@ export default abstract class Generator<T> {
   /**
    * Returns a panel for the settings of this generator including what dependency generators it's using
    */
-  public panel(existing_types: GeneratorType[]): JSX.Element {
+  public panel(existing_types: GeneratorType[], onUpdate?: () => void): JSX.Element {
     return (
       <div style={{ paddingBottom: '10px' }}>
         <div style={{ padding: '10px', marginBottom: '10px', border: '1px solid #404040', borderRadius: '4px', backgroundColor: '#202020' }}>
           <h2 className="text-lg font-bold">{this.meta().name}</h2>
           <br />
-          {this.settingsPanel()}
-          {this.dependenciesPanel()}
+          {this.settingsPanel(onUpdate)}
+          {this.dependenciesPanel(onUpdate)}
         </div>
-        {Array.from(this.dependencies.entries()).map(([type,generator]) => {
-          return existing_types.includes(type) ? <div key={type}></div> : <div key={type}>{generator.panel(existing_types.concat(Array.from(this.dependencies.keys())))}</div>;
+        {Array.from(this.dependencies().values()).map((generator) => {
+          return existing_types.includes(generator.type) ? <div key={generator.type}></div> : <div key={generator.type}>{generator.panel(existing_types.concat(this.dependencyTypes()), onUpdate)}</div>;
         })}
       </div>
     );
@@ -99,21 +114,22 @@ export default abstract class Generator<T> {
   /**
    * Returns a panel with the dependency selectors
    */
-  private dependenciesPanel(): JSX.Element {
-    return this.dependencies.size > 0 ? (
+  private dependenciesPanel(onUpdate?: () => void): JSX.Element {
+    return this.dependencyTypes().length > 0 ? (
       <div>
         <br />
         <h3 className="text-lg font-bold">Dependencies</h3>
         {this.dependencyTypes().map((dependency, index) => (
           <div key={index}>
             {dependency}
-            <select value={this.dependencies.get(dependency)?.type} onChange={(e) => {
+            <select value={Generator.dependencies.get(dependency)?.meta().name} onChange={(e) => {
               const selectedGenerator = Generator.availableGenerators.get(dependency)?.get(e.target.value as GeneratorImplementation);
               if (selectedGenerator) {
-                Generator.reverseDependencies.get(this.dependencies.get(dependency)!)?.filter(generator => generator !== this);
-                this.dependencies.set(dependency, selectedGenerator);
-                Generator.reverseDependencies.get(selectedGenerator)?.push(this);
+                Generator.reverseDependencies.get(dependency)?.filter(generator => generator !== this);
+                Generator.dependencies.set(dependency, selectedGenerator);
+                Generator.reverseDependencies.get(selectedGenerator.type)?.push(this);
                 this.update();
+                onUpdate?.();
               }
             }}
             style={{
@@ -137,7 +153,7 @@ export default abstract class Generator<T> {
   /**
    * Returns a panel with only the settings for this generator, without the dependency selectors
    */
-  protected abstract settingsPanel(): JSX.Element;
+  protected abstract settingsPanel(onUpdate?: () => void): JSX.Element;
 
   /**
    * The function that builds the map this generator is responsible for
@@ -165,12 +181,12 @@ export default abstract class Generator<T> {
   }
 
   /**
-   * Rebuilds all tiles
+   * Rebuilds this tile
    */
   public update(): void {
-    this.tileCache.clear();
+    console.log("[" + this.meta().name + "] Updating");
     this.tileCache.forEach((_, coordinates) => {
-      this.buildTile(coordinates);
+      this.tileCache.set(coordinates, this.buildTile(coordinates));
     });
     Generator.updateDependents(this);
   }

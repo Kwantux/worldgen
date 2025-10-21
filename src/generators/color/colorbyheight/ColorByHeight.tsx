@@ -20,7 +20,7 @@ export class ColorByHeight extends Generator<Float32Array> {
   }
 
   protected buildTile(coordinates: ScaledCoordinate): Float32Array {
-    const heightMap = this.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
+    const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
     if (!heightMap) {
       throw new Error("Height map dependency not met.");
     }
@@ -40,7 +40,7 @@ export class ColorByHeight extends Generator<Float32Array> {
     return ColorByHeight.meta();
   }
 
-  public settingsPanel() {
+  public settingsPanel(onUpdate?: () => void) {
     return <></>;
   }
 }

@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { FlyingCamera } from './controls/FlyingCamera';
 import { Lighting } from './scene/Lighting';
 import FinalAssembly from '../logic/FinalAssembly';
 
-export const World: React.FC<{ finalAssembly: FinalAssembly }> = ({ finalAssembly }) => {
+export const World: React.FC<{ finalAssembly: FinalAssembly}> = ({ finalAssembly }) => {
+
+  const [_, updateTrigger] = useState({});
+
+  const triggerUpdate = () => {
+    console.log("Triggering update of tiles");
+    updateTrigger({});
+  };
+
+  finalAssembly.setUpdateFunction(triggerUpdate);
 
   return (
     <div className="w-full h-screen">
@@ -18,6 +27,7 @@ export const World: React.FC<{ finalAssembly: FinalAssembly }> = ({ finalAssembl
         <FlyingCamera />
         <OrbitControls enableZoom={true} enablePan={true} />
         {finalAssembly.renderTiles()}
+        
         {/* <fog attafh="fog" args={['#17171b', 30, 100]} /> */}
       </Canvas>
       {/* <ControlsOverlay /> */}

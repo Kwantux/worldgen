@@ -11,14 +11,23 @@ export default class FinalAssembly extends Generator<WorldData> {
     private tiles: Map<ScaledCoordinate, Tile> = new Map();
     private radius: number = 1;
 
-    protected settingsPanel(): JSX.Element {
+    private updateFunction?: () => void;
+
+    public setUpdateFunction(updateFunction: () => void): void {
+        this.updateFunction = updateFunction;
+    }
+
+    protected settingsPanel(onUpdate?: () => void): JSX.Element {
         return (
             <div>
                 <label>Radius of World (in Tiles):</label>
                 <input
                     type="number"
                     value={this.radius}
-                    onChange={(e) => this.setRadius((e.target as HTMLInputElement).valueAsNumber)}
+                    onChange={(e) => {
+                        this.setRadius((e.target as HTMLInputElement).valueAsNumber);
+                        onUpdate?.();
+                    }}
                     style={{ backgroundColor: '#2b2a33', padding: '4px', width: '100%' }}
                 />
             </div>
@@ -26,8 +35,8 @@ export default class FinalAssembly extends Generator<WorldData> {
     }
 
     protected buildTile(coordinates: ScaledCoordinate): WorldData {
-        const heightMap = this.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
-        const colorMap = this.dependencies.get(GeneratorType.Color)?.getTile(coordinates);
+        const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
+        const colorMap = Generator.dependencies.get(GeneratorType.Color)?.getTile(coordinates);
         return [heightMap!, colorMap!];
     }
 
@@ -99,12 +108,15 @@ export default class FinalAssembly extends Generator<WorldData> {
      * Rebuilds all tiles and pushes data to the rendered Tile components
      */
     public update() {
+        console.log("[FinalAssembly] Updating tiles");
         // Rebuild and push data for all known coordinates
         this.tiles.forEach((tile, coordinates) => {
             const [heightMap, colorMap] = this.buildTile(coordinates);
             tile.setHeightMap(heightMap);
             tile.setColorMap(colorMap);
         });
+
+        this.updateFunction?.();
     }
 }
         
