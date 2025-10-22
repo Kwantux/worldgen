@@ -58,7 +58,7 @@ export default class FinalAssembly extends Generator<WorldData> {
                 [GeneratorType.Color, Generator.availableGenerators.get(GeneratorType.Color)!.get("Color: by Height")!]
             ]
         ));
-        this.generateTiles(this.radius);
+        this.generateTiles(this.radius, this.levelsOfDetail);
     }
 
     public static getInstance(): FinalAssembly {
@@ -123,7 +123,6 @@ export default class FinalAssembly extends Generator<WorldData> {
                         continue;
                     }
                     const coord: ScaledCoordinate = { coordinate: [x, y], levelOfDetail: new LevelOfDetail(i) };
-                    console.log(coord);
                     const tile = new Tile(coord);
                     this.tiles.set(coord, tile);
                 }
