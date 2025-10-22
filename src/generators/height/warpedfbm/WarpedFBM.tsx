@@ -39,17 +39,17 @@ export class WarpedFBM extends Generator<Float32Array> {
       heightNoiseFunction: (x: number, y: number) => perlin(x, y, 1, 1, SEGMENTS),
       scale: 1,
       scaleH: 2,
-      scaleV: 0.04,
-      rawScaleV: 1,
+      scaleV: 0.1,
+      rawScaleV: 0.8,
       rawShift: 0,
-      verticalShift: 0,
-      exponent: 8,
+      verticalShift: -260,
+      exponent: 6,
       octaves: 7,
-      lacunarity: 0.35,
+      lacunarity: 0.34,
       persistence: 3.3,
-      lacunarityScale: 0.98,
-      persistenceScale: 1.05,
-      persistenceIncByHeight: 0.45
+      lacunarityScale: 0.96,
+      persistenceScale: 1.06,
+      persistenceIncByHeight: 0.33
     };
   }
 
@@ -103,7 +103,7 @@ export class WarpedFBM extends Generator<Float32Array> {
       x,
       y,
       scaleH * scale * stateScaleH,
-      scaleV * scale,
+      scaleV / scale,
       rawScaleV,
       rawShift,
       verticalShift,
