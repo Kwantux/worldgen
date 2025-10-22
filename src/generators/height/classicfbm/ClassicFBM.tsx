@@ -2,7 +2,7 @@ import Generator, { GeneratorMeta } from '../../../logic/Generator';
 import { GeneratorType } from '../../../logic/Generator';
 import { classicFbmMap } from './Functions';
 import { ScaledCoordinate } from '../../../util/Types';
-import { SEGMENTS } from '../../../components/terrain/Tile';
+import { INCREMENT, SEGMENTS } from '../../../components/terrain/Tile';
 import { perlin } from '../perlinheight/Functions';
 
 type ClassicFBMState = {
@@ -35,7 +35,7 @@ export class ClassicFBM extends Generator<Float32Array> {
   private constructor() {
     super(GeneratorType.Height, new Map());
     this.state = {
-      heightNoiseFunction: (x: number, y: number) => perlin(x, y, 1, 1, SEGMENTS),
+      heightNoiseFunction: (x: number, y: number) => perlin(x, y, 1, 1, INCREMENT),
       scale: 1,
       scaleH: 0.5,
       scaleV: 0.04,
@@ -94,7 +94,6 @@ export class ClassicFBM extends Generator<Float32Array> {
 
     return classicFbmMap(
       heightNoiseFunction,
-      SEGMENTS,
       x,
       y,
       scaleH * scale * stateScaleH,

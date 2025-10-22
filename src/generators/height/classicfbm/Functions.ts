@@ -1,20 +1,22 @@
 'use strict';
 
+import { INCREMENT, SEGMENTS } from "../../../components/terrain/Tile";
+
 const cache: Map<string, Float32Array> = new Map();
 
-export function classicFbmMap(heightNoiseFunction: (x: number, y: number) => number, segments: number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1): Float32Array {
-  const key = "classicfbm " + segments + " " + x + " " + y + " " + scaleH + " " + scaleV + " " + rawScaleV + " " + rawShift + " " + exponent + " " + octaves + " " + lacunarity + " " + persistence + " " + lacunarityScale + " " + persistenceScale;
+export function classicFbmMap(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octaves: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1): Float32Array {
+  const key = "classicfbm " + x + " " + y + " " + scaleH + " " + scaleV + " " + rawScaleV + " " + rawShift + " " + exponent + " " + octaves + " " + lacunarity + " " + persistence + " " + lacunarityScale + " " + persistenceScale;
   if (scaleH == 0) console.error("[ClassicFBM] scaleH must not be 0");
   if (cache.has(key)) {
     return cache.get(key)!;
   }
-  const data = new Float32Array(segments * segments);
+  const data = new Float32Array(SEGMENTS * SEGMENTS);
 
-  for (let i = 0; i < segments; i++) {
-    for (let j = 0; j < segments; j++) {
-      const ix = j + x * segments;
-      const iy = i + y * segments;
-      data[i * segments + j] = ( octave(heightNoiseFunction, ix * scaleH, iy * scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
+  for (let i = 0; i < SEGMENTS; i++) {
+    for (let j = 0; j < SEGMENTS; j++) {
+      const ix = j + x * INCREMENT;
+      const iy = i + y * INCREMENT;
+      data[i * SEGMENTS + j] = ( octave(heightNoiseFunction, ix * scaleH, iy * scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
     }
   }
 

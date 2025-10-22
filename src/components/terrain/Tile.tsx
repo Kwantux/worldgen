@@ -3,8 +3,9 @@ import * as THREE from 'three';
 import { ScaledCoordinate } from '../../util/Types';
 
 export const BASE_MESH_SIZE = 50;
-export const SEGMENTS = 64;
-export const GEOMETRY_SEGMENTS = SEGMENTS - 1;
+export const INCREMENT = 64;
+export const SEGMENTS = INCREMENT + 1;
+export const GEOMETRY_SEGMENTS = INCREMENT;
 
 export class Tile {
 
@@ -39,7 +40,7 @@ export class Tile {
     const vertices = geo.attributes.position.array;
     const x = this.coordinate.coordinate[0] * this.size;
     const y = this.coordinate.coordinate[1] * this.size;
-    const segmentSize = this.size / SEGMENTS;
+    const segmentSize = this.size / INCREMENT;
 
     for (let i = 0; i < heightMap.length; i++) {
       const gridX = (i % SEGMENTS) * segmentSize;
@@ -67,11 +68,11 @@ export class Tile {
     const vertices = geo.attributes.position.array;
     const x = this.coordinate.coordinate[0] * this.size;
     const y = this.coordinate.coordinate[1] * this.size;
-    const segmentSize = this.size / SEGMENTS;
+    const segmentSize = this.size / INCREMENT;
 
     for (let i = 0; i < heightMap.length; i++) {
-      const gridX = (i % SEGMENTS) * segmentSize;
-      const gridY = Math.floor(i / SEGMENTS) * segmentSize;
+      const gridX = (i % INCREMENT) * segmentSize;
+      const gridY = Math.floor(i / INCREMENT) * segmentSize;
 
       (vertices as any)[i * 3] = x + gridX;
       (vertices as any)[i * 3 + 1] = y + gridY;
