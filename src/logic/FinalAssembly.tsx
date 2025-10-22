@@ -9,7 +9,7 @@ export default class FinalAssembly extends Generator<WorldData> {
     private static instance: FinalAssembly;
 
     private tiles: Map<ScaledCoordinate, Tile> = new Map();
-    private radius: number = 1;
+    private ringSize: number = 4;
     private levelsOfDetail = 1;
 
     private updateFunction?: () => void;
@@ -24,9 +24,9 @@ export default class FinalAssembly extends Generator<WorldData> {
                 <label>Ring Size:</label>
                 <input
                     type="number"
-                    value={this.radius}
+                    value={this.ringSize}
                     onChange={(e) => {
-                        this.setRadius((e.target as HTMLInputElement).valueAsNumber);
+                        this.setRingSize((e.target as HTMLInputElement).valueAsNumber);
                         onUpdate?.();
                     }}
                     style={{ backgroundColor: '#2b2a33', padding: '4px', width: '100%' }}
@@ -58,7 +58,7 @@ export default class FinalAssembly extends Generator<WorldData> {
                 [GeneratorType.Color, Generator.availableGenerators.get(GeneratorType.Color)!.get("Color: by Height")!]
             ]
         ));
-        this.generateTiles(this.radius, this.levelsOfDetail);
+        this.generateTiles(this.ringSize, this.levelsOfDetail);
     }
 
     public static getInstance(): FinalAssembly {
@@ -94,12 +94,12 @@ export default class FinalAssembly extends Generator<WorldData> {
         );
     }
 
-    private setRadius(newRadius: number): void {
-        if (Number.isNaN(newRadius) || newRadius < 0) {
+    private setRingSize(newRingSize: number): void {
+        if (Number.isNaN(newRingSize) || newRingSize < 0) {
             return;
         }
-        this.radius = newRadius;
-        this.generateTiles(this.radius, this.levelsOfDetail);
+        this.ringSize = newRingSize;
+        this.generateTiles(this.ringSize, this.levelsOfDetail);
         this.update();
     }
 
@@ -108,7 +108,7 @@ export default class FinalAssembly extends Generator<WorldData> {
             return;
         }
         this.levelsOfDetail = newLevelsOfDetail;
-        this.generateTiles(this.radius, this.levelsOfDetail);
+        this.generateTiles(this.ringSize, this.levelsOfDetail);
         this.update();
     }
 

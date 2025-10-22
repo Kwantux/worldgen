@@ -14,7 +14,7 @@ export function classicFbmMap(heightNoiseFunction: (x: number, y: number) => num
     for (let j = 0; j < segments; j++) {
       const ix = j + x * segments;
       const iy = i + y * segments;
-      data[i * segments + j] = ( octave(heightNoiseFunction, ix / scaleH, iy / scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
+      data[i * segments + j] = ( octave(heightNoiseFunction, ix * scaleH, iy * scaleH, octaves, lacunarity, persistence, lacunarityScale, persistenceScale, rawScaleV, rawShift, exponent)) * scaleV;
     }
   }
 

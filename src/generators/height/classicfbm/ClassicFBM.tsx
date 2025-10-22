@@ -37,7 +37,7 @@ export class ClassicFBM extends Generator<Float32Array> {
     this.state = {
       heightNoiseFunction: (x: number, y: number) => perlin(x, y, 1, 1, SEGMENTS),
       scale: 1,
-      scaleH: 2,
+      scaleH: 0.5,
       scaleV: 0.04,
       rawScaleV: 1,
       rawShift: 0,
