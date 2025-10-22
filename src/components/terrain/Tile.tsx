@@ -13,7 +13,7 @@ export class Tile {
   private size: number;
 
   private mesh = React.createRef<THREE.Mesh>();
-  // private waterMesh = React.createRef<THREE.Mesh>();
+  private waterMesh = React.createRef<THREE.Mesh>();
 
   private geometry: THREE.PlaneGeometry;
   private waterGeometry: THREE.PlaneGeometry;
@@ -28,6 +28,8 @@ export class Tile {
     this.geometry = new THREE.PlaneGeometry(this.size, this.size, GEOMETRY_SEGMENTS, GEOMETRY_SEGMENTS);
     this.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(GEOMETRY_SEGMENTS * GEOMETRY_SEGMENTS * 3), 3));
     this.waterGeometry = new THREE.PlaneGeometry(this.size, this.size, GEOMETRY_SEGMENTS, GEOMETRY_SEGMENTS);
+
+    this.setWaterMap(new Float32Array(SEGMENTS * SEGMENTS));
   }
 
   public getScale = (): number => {
@@ -71,8 +73,8 @@ export class Tile {
     const segmentSize = this.size / INCREMENT;
 
     for (let i = 0; i < heightMap.length; i++) {
-      const gridX = (i % INCREMENT) * segmentSize;
-      const gridY = Math.floor(i / INCREMENT) * segmentSize;
+      const gridX = (i % SEGMENTS) * segmentSize;
+      const gridY = Math.floor(i / SEGMENTS) * segmentSize;
 
       (vertices as any)[i * 3] = x + gridX;
       (vertices as any)[i * 3 + 1] = y + gridY;
@@ -93,7 +95,7 @@ export class Tile {
             side={THREE.DoubleSide}
           />
         </mesh>
-        {/* <mesh ref={this.waterMesh} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <mesh ref={this.waterMesh} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <primitive object={this.waterGeometry} attach="geometry" />
           <meshStandardMaterial
             wireframe={false}
@@ -102,7 +104,7 @@ export class Tile {
             transparent={true}
             opacity={0.6}
           />
-        </mesh> */}
+        </mesh>
       </React.Fragment>
     );
   }
