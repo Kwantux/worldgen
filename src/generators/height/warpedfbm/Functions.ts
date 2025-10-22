@@ -1,6 +1,6 @@
 'use strict';
 
-export function warpedMap(heightNoiseFunction: (x: number, y: number) => number, segments: number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 ,exponent: number = 1, octavesNumber: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1, persistenceIncByHeight: number = 0.15): Float32Array {
+export function warpedMap(heightNoiseFunction: (x: number, y: number) => number, segments: number, x: number, y: number, scaleH: number = 1, scaleV: number = 0.01, rawScaleV: number = 1, rawShift: number = 0 , verticalShift: number = 0, exponent: number = 1, octavesNumber: number = 3, lacunarity: number = 2, persistence: number = 0.5, lacunarityScale: number = 1, persistenceScale: number = 1, persistenceIncByHeight: number = 0.15): Float32Array {
   const data = new Float32Array(segments * segments);
   if (scaleH == 0) console.error("[WarpedFBM] scaleH must not be 0");
 
@@ -8,9 +8,9 @@ export function warpedMap(heightNoiseFunction: (x: number, y: number) => number,
 
   for (let i = 0; i < segments; i++) {
     for (let j = 0; j < segments; j++) {
-      const ix = j + x * segments;
-      const iy = i + y * segments;
-      data[i * segments + j] = ( octave(heightNoiseFunction, ix / scaleH, iy / scaleH, octaves, rawScaleV, rawShift, exponent, persistenceIncByHeight)) * scaleV;
+      const ix = j + x * (segments - 1);
+      const iy = i + y * (segments - 1);
+      data[i * segments + j] = ( octave(heightNoiseFunction, ix * scaleH, iy * scaleH, octaves, rawScaleV, rawShift, exponent, persistenceIncByHeight)) * scaleV + verticalShift;
     }
   }
   return data;
@@ -37,7 +37,7 @@ type Octave = {
 function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: Octave[], rawScaleV: number, rawShift: number, exponent: number, persistenceIncByHeight: number) {
 
   let sum: number = 0;
-  let roughHeight = 0.5+heightNoiseFunction(x * octaves[octaves.length-1].frequency, y * octaves[octaves.length-1].frequency)/2;
+  let roughHeight = 0.5+heightNoiseFunction(x * octaves[octaves.length-1].frequency, y * octaves[octaves.length-1].frequency)/2; // 0 to 1
 
 
   // Iterate through each octave and sum their results together
@@ -45,7 +45,7 @@ function octave(heightNoiseFunction: (x: number, y: number) => number, x: number
   for (let i = 0; i < octaves.length; i++) {
     const exp = i==octaves.length-1 ? 1: lerp(1, exponent, roughHeight**3);
     const raw: number = heightNoiseFunction(x * octaves[i].frequency, y * octaves[i].frequency);
-    sum += (((raw+1) * rawScaleV + rawShift) ** exp) * octaves[i].amplitude * lerp(1, persistenceIncByHeight, roughHeight);
+    sum += (((raw+1) * rawScaleV + rawShift) ** exp) * octaves[i].amplitude * lerp(1, persistenceIncByHeight*roughHeight, i/octaves.length);
   }
   return sum;
 }

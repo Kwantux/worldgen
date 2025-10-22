@@ -12,6 +12,7 @@ type ClassicFBMState = {
   scaleV: number;
   rawScaleV: number;
   rawShift: number;
+  verticalShift: number;
   exponent: number;
   octaves: number;
   lacunarity: number;
@@ -41,6 +42,7 @@ export class ClassicFBM extends Generator<Float32Array> {
       scaleV: 0.04,
       rawScaleV: 1,
       rawShift: 0,
+      verticalShift: 0,
       exponent: 4,
       octaves: 5,
       lacunarity: 0.4,
@@ -81,7 +83,8 @@ export class ClassicFBM extends Generator<Float32Array> {
       scaleH: stateScaleH, 
       scaleV, 
       rawScaleV, 
-      rawShift, 
+      rawShift,
+      verticalShift,
       exponent, 
       octaves, 
       lacunarity, 
@@ -100,6 +103,7 @@ export class ClassicFBM extends Generator<Float32Array> {
       scaleV * scale,
       rawScaleV,
       rawShift,
+      verticalShift,
       exponent,
       octaves,
       lacunarity,
@@ -122,6 +126,7 @@ export class ClassicFBM extends Generator<Float32Array> {
       scaleV, 
       rawScaleV, 
       rawShift, 
+      verticalShift,
       exponent, 
       octaves, 
       lacunarity, 
@@ -133,9 +138,10 @@ export class ClassicFBM extends Generator<Float32Array> {
     return (
       <div className="classic-fbm-settings">
         <div>
-          <label>Scale: {scale.toFixed(2)}</label>
+          <label>Scale:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="10"
             step="0.1"
@@ -145,9 +151,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
         
         <div>
-          <label>Horizontal Scale: {scaleH.toFixed(2)}</label>
+          <label>Horizontal Scale:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="10"
             step="0.1"
@@ -157,9 +164,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Vertical Scale: {scaleV.toFixed(4)}</label>
+          <label>Vertical Scale:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.0001"
             max="0.1"
             step="0.0001"
@@ -169,9 +177,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Raw Scale V: {rawScaleV.toFixed(2)}</label>
+          <label>Raw Scale V:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="5"
             step="0.1"
@@ -181,9 +190,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Raw Shift: {rawShift.toFixed(2)}</label>
+          <label>Raw Shift:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="-2"
             max="2"
             step="0.01"
@@ -193,9 +203,23 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Exponent: {exponent.toFixed(1)}</label>
+          <label>Vertical Shift:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
+            min="-1"
+            max="1"
+            step="0.01"
+            value={verticalShift}
+            onChange={(e) => this.updateState({ verticalShift: parseFloat(e.target.value) }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Exponent:</label>
+          <br/>
+          <input
+            type="number"
             min="1"
             max="16"
             step="0.1"
@@ -205,9 +229,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Octaves: {octaves}</label>
+          <label>Octaves:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="1"
             max="10"
             step="1"
@@ -217,9 +242,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Lacunarity: {lacunarity.toFixed(2)}</label>
+          <label>Lacunarity:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="2"
             step="0.01"
@@ -229,9 +255,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Persistence: {persistence.toFixed(2)}</label>
+          <label>Persistence:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="5"
             step="0.1"
@@ -241,9 +268,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Lacunarity Scale: {lacunarityScale.toFixed(2)}</label>
+          <label>Lacunarity Scale:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="2"
             step="0.01"
@@ -253,9 +281,10 @@ export class ClassicFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Persistence Scale: {persistenceScale.toFixed(2)}</label>
+          <label>Persistence Scale:</label>
+          <br/>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="2"
             step="0.01"

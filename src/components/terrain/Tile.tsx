@@ -13,7 +13,7 @@ export class Tile {
   private size: number;
 
   private mesh = React.createRef<THREE.Mesh>();
-  private waterMesh = React.createRef<THREE.Mesh>();
+  // private waterMesh = React.createRef<THREE.Mesh>();
 
   private geometry: THREE.PlaneGeometry;
   private waterGeometry: THREE.PlaneGeometry;
@@ -93,7 +93,7 @@ export class Tile {
             side={THREE.DoubleSide}
           />
         </mesh>
-        <mesh ref={this.waterMesh} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        {/* <mesh ref={this.waterMesh} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <primitive object={this.waterGeometry} attach="geometry" />
           <meshStandardMaterial
             wireframe={false}
@@ -102,7 +102,7 @@ export class Tile {
             transparent={true}
             opacity={0.6}
           />
-        </mesh>
+        </mesh> */}
       </React.Fragment>
     );
   }

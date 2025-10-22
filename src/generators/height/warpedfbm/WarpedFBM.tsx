@@ -12,6 +12,7 @@ type WarpedFBMState = {
   scaleV: number;
   rawScaleV: number;
   rawShift: number;
+  verticalShift: number;
   exponent: number;
   octaves: number;
   lacunarity: number;
@@ -41,6 +42,7 @@ export class WarpedFBM extends Generator<Float32Array> {
       scaleV: 0.04,
       rawScaleV: 1,
       rawShift: 0,
+      verticalShift: 0,
       exponent: 8,
       octaves: 7,
       lacunarity: 0.35,
@@ -82,7 +84,8 @@ export class WarpedFBM extends Generator<Float32Array> {
       scaleH: stateScaleH, 
       scaleV, 
       rawScaleV, 
-      rawShift, 
+      rawShift,
+      verticalShift,
       exponent, 
       octaves, 
       lacunarity, 
@@ -103,6 +106,7 @@ export class WarpedFBM extends Generator<Float32Array> {
       scaleV * scale,
       rawScaleV,
       rawShift,
+      verticalShift,
       exponent,
       octaves,
       lacunarity,
@@ -127,6 +131,7 @@ export class WarpedFBM extends Generator<Float32Array> {
       scaleV, 
       rawScaleV, 
       rawShift, 
+      verticalShift,
       exponent, 
       octaves, 
       lacunarity, 
@@ -139,11 +144,9 @@ export class WarpedFBM extends Generator<Float32Array> {
     return (
       <div className="warped-fbm-settings">
         <div>
-          <label>Scale: {scale.toFixed(2)}</label>
+          <label>Scale:</label>
           <input
-            type="range"
-            min="0.1"
-            max="10"
+            type="number"
             step="0.1"
             value={scale}
             onChange={(e) => this.updateState({ scale: parseFloat(e.target.value) }, onUpdate)}
@@ -151,11 +154,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
         
         <div>
-          <label>Horizontal Scale: {scaleH.toFixed(2)}</label>
+          <label>Horizontal Scale:</label>
           <input
-            type="range"
-            min="0.1"
-            max="10"
+            type="number"
             step="0.1"
             value={scaleH}
             onChange={(e) => this.updateState({ scaleH: parseFloat(e.target.value) }, onUpdate)}
@@ -163,11 +164,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Vertical Scale: {scaleV.toFixed(4)}</label>
+          <label>Vertical Scale:</label>
           <input
-            type="range"
-            min="0.0001"
-            max="0.1"
+            type="number"
             step="0.0001"
             value={scaleV}
             onChange={(e) => this.updateState({ scaleV: parseFloat(e.target.value) }, onUpdate)}
@@ -175,11 +174,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Raw Scale V: {rawScaleV.toFixed(2)}</label>
+          <label>Raw Scale V:</label>
           <input
-            type="range"
-            min="0.1"
-            max="5"
+            type="number"
             step="0.1"
             value={rawScaleV}
             onChange={(e) => this.updateState({ rawScaleV: parseFloat(e.target.value) }, onUpdate)}
@@ -187,11 +184,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Raw Shift: {rawShift.toFixed(2)}</label>
+          <label>Raw Shift:</label>
           <input
-            type="range"
-            min="-2"
-            max="2"
+            type="number"
             step="0.01"
             value={rawShift}
             onChange={(e) => this.updateState({ rawShift: parseFloat(e.target.value) }, onUpdate)}
@@ -199,11 +194,19 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Exponent: {exponent.toFixed(1)}</label>
+          <label>Vertical Shift:</label>
           <input
-            type="range"
-            min="1"
-            max="16"
+            type="number"
+            step="0.01"
+            value={verticalShift}
+            onChange={(e) => this.updateState({ verticalShift: parseFloat(e.target.value) }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Exponent:</label>
+          <input
+            type="number"
             step="0.1"
             value={exponent}
             onChange={(e) => this.updateState({ exponent: parseFloat(e.target.value) }, onUpdate)}
@@ -211,11 +214,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Octaves: {octaves}</label>
+          <label>Octaves:</label>
           <input
-            type="range"
-            min="1"
-            max="10"
+            type="number"
             step="1"
             value={octaves}
             onChange={(e) => this.updateState({ octaves: parseInt(e.target.value) }, onUpdate)}
@@ -223,11 +224,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Lacunarity: {lacunarity.toFixed(2)}</label>
+          <label>Lacunarity:</label>
           <input
-            type="range"
-            min="0.1"
-            max="2"
+            type="number"
             step="0.01"
             value={lacunarity}
             onChange={(e) => this.updateState({ lacunarity: parseFloat(e.target.value) }, onUpdate)}
@@ -235,11 +234,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Persistence: {persistence.toFixed(2)}</label>
+          <label>Persistence:</label>
           <input
-            type="range"
-            min="0.1"
-            max="5"
+            type="number"
             step="0.1"
             value={persistence}
             onChange={(e) => this.updateState({ persistence: parseFloat(e.target.value) }, onUpdate)}
@@ -247,11 +244,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Lacunarity Scale: {lacunarityScale.toFixed(2)}</label>
+          <label>Lacunarity Scale:</label>
           <input
-            type="range"
-            min="0.1"
-            max="2"
+            type="number"
             step="0.01"
             value={lacunarityScale}
             onChange={(e) => this.updateState({ lacunarityScale: parseFloat(e.target.value) }, onUpdate)}
@@ -259,11 +254,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Persistence Scale: {persistenceScale.toFixed(2)}</label>
+          <label>Persistence Scale: </label>
           <input
-            type="range"
-            min="0.1"
-            max="2"
+            type="number"
             step="0.01"
             value={persistenceScale}
             onChange={(e) => this.updateState({ persistenceScale: parseFloat(e.target.value) }, onUpdate)}
@@ -271,11 +264,9 @@ export class WarpedFBM extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Persistence Inc By Height: {persistenceIncByHeight.toFixed(2)}</label>
+          <label>Persistence Inc By Height:</label>
           <input
-            type="range"
-            min="0"
-            max="1"
+            type="number"
             step="0.01"
             value={persistenceIncByHeight}
             onChange={(e) => this.updateState({ persistenceIncByHeight: parseFloat(e.target.value) }, onUpdate)}
