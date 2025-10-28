@@ -12,7 +12,18 @@ export enum GeneratorType {
   FinalAssembly = "FinalAssembly"
 }
 
-export type GeneratorImplementation = "Height: Warped fBm" | "Height: Classic fBm" | "Color: by Biome" | "Color: by Height" | "Sunshine: Perlin" | "Temperature: by Height" | "Temperature: by Sunshine and Height" | "Temperature: by Sunshine" | "World Settings";
+export type GeneratorImplementation = 
+  | "Height: Warped fBm" 
+  | "Height: Classic fBm" 
+  | "Color: by Biome" 
+  | "Color: by Height" 
+  | "Sunshine: Perlin" 
+  | "Temperature: by Height" 
+  | "Temperature: by Height and Sunshine" 
+  | "Temperature: by Sunshine" 
+  | "Humidity: Perlin"
+  | "World Settings";
+
 export type GeneratorMeta = {
   type: GeneratorType;
   name: GeneratorImplementation;

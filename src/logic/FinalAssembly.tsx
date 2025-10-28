@@ -56,7 +56,7 @@ export default class FinalAssembly extends Generator<WorldData> {
             [
                 [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Classic fBm")!],
                 [GeneratorType.Color, Generator.availableGenerators.get(GeneratorType.Color)!.get("Color: by Height")!],
-                [GeneratorType.Temperature, Generator.availableGenerators.get(GeneratorType.Temperature)!.get("Temperature: by Sunshine and Height")!]
+                [GeneratorType.Temperature, Generator.availableGenerators.get(GeneratorType.Temperature)!.get("Temperature: by Height and Sunshine")!]
             ]
         ));
         this.generateTiles(this.ringSize, this.levelsOfDetail);

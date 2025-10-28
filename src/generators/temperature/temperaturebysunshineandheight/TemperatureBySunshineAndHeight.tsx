@@ -55,7 +55,7 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
   public static meta() {
     return {
       type: GeneratorType.Temperature,
-      name: 'Temperature: by Sunshine and Height' as const,
+      name: 'Temperature: by Height and Sunshine' as const,
       dependencies: [GeneratorType.Height, GeneratorType.Sunshine],
       constructor: () => TemperatureByHeightAndSunshine.getInstance()
     };

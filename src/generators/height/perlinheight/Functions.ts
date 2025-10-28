@@ -44,7 +44,7 @@ function lerp(a: number, b: number, x: number): number {
   
 // smoothing function
 // only to be used for numbers between 0 and 1
-function fade(f: number): number {
+export function fade(f: number): number {
     return 6 * f ** 5 - 15 * f ** 4 + 10 * f ** 3;
 }
   

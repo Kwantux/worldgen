@@ -6,8 +6,9 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
-  },
-  server: {
-    hmr: false
   }
+  // ,
+  // server: {
+  //   hmr: false
+  // }
 });
