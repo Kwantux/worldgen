@@ -1,120 +1,149 @@
-import { useState, useCallback } from 'react';
+import Generator from '../../logic/Generator';
+import { GeneratorType } from '../../logic/Generator';
 import { perlinMap } from './Functions';
-import { FunctionHolder } from '../../logic/FunctionHolder';
+import { ScaledCoordinate } from '../../util/Types';
+import { SEGMENTS } from '../../components/terrain/Tile';
 
-export const PerlinSunshineGenerator: React.FC<{
-  fh: FunctionHolder;
-}> = ({ fh }) => {
+type PerlinSunshineState = {
+  seed: number;
+  scale: number;
+  scaleH: number;
+  scaleV: number;
+};
 
-  const [seed, setSeed] = useState(1000);
-  const [scale, setScale] = useState(1);
-  const [scaleH, setScaleH] = useState(10);
-  const [scaleV, setScaleV] = useState(0.04);
-  const [rawScaleV, setRawScaleV] = useState(1);
-  const [rawShift, setRawShift] = useState(0);
-  const [exponent, setExponent] = useState(4);
-  const [octaves, setOctaves] = useState(5);
-  const [lacunarity, setLacunarity] = useState(0.4);
-  const [persistence, setPersistence] = useState(3.5);
+export class PerlinSunshine extends Generator<Float32Array> {
+  protected buildTile(coordinates: ScaledCoordinate): Float32Array {
+    return this.generate(
+      coordinates.coordinate[0],
+      coordinates.coordinate[1],
+      coordinates.levelOfDetail.scale(),
+    );
+  }
 
-  const handleSeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSeed(e.target.valueAsNumber);
-    updateFunction(e.target.valueAsNumber, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
-  };
+  private state: PerlinSunshineState;
+  private static instance: PerlinSunshine;
 
-  const handleScaleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setScale(e.target.valueAsNumber);
-    updateFunction(seed, e.target.valueAsNumber, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
-  };
-  
-  const handleScaleHChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setScaleH(e.target.valueAsNumber);
-    updateFunction(seed, scale, e.target.valueAsNumber, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
-  };
-  
-  const handleScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setScaleV(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, e.target.valueAsNumber, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
-  };
-  
-  const handleRawScaleVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRawScaleV(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, e.target.valueAsNumber, rawShift, exponent, octaves, lacunarity, persistence);
-  };
-  
-  const handleRawShiftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRawShift(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, e.target.valueAsNumber, exponent, octaves, lacunarity, persistence);
-  };
-  
-  const handleExponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setExponent(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, e.target.valueAsNumber, octaves, lacunarity, persistence);
-  };
-  
-  const handleOctavesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOctaves(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, e.target.valueAsNumber, lacunarity, persistence);
-  };
-  
-  const handleLacunarityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLacunarity(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, e.target.valueAsNumber, persistence);
-  };
-  
-  const handlePersistenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPersistence(e.target.valueAsNumber);
-    updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, e.target.valueAsNumber);
-  };
+  private constructor() {
+    super(GeneratorType.Sunshine, new Map());
+    this.state = {
+      seed: 1000,
+      scale: 1,
+      scaleH: 10,
+      scaleV: 0.04
+    };
+  }
 
-  const updateFunction = useCallback((
-    seed: number,
-    scale: number,
+  public static getInstance(): PerlinSunshine {
+    if (!PerlinSunshine.instance) {
+      PerlinSunshine.instance = new PerlinSunshine();
+    }
+    return PerlinSunshine.instance;
+  }
+
+  public static meta() {
+    return {
+      type: GeneratorType.Sunshine,
+      name: 'Sunshine: Perlin' as const,
+      dependencies: [],
+      constructor: () => PerlinSunshine.getInstance()
+    };
+  }
+
+  public meta() {
+    return PerlinSunshine.meta();
+  }
+
+  public generate(
+    x: number,
+    y: number,
     scaleH: number,
-    scaleV: number,
-    rawScaleV: number,
-    rawShift: number,
-    exponent: number,
-    octaves: number,
-    lacunarity: number,
-    persistence: number
-  ) => {
+  ): Float32Array {
+    const {
+      seed,
+      scale,
+      scaleH: stateScaleH,
+      scaleV
+    } = this.state;
 
-    const hash = ('perlintemperature ' + seed + ' ' + scale + ' ' + scaleH + ' ' + scaleV + ' ' + rawScaleV + ' ' + rawShift + ' ' + exponent + ' ' + octaves + ' ' + lacunarity + ' ' + persistence);
+    return perlinMap(
+      SEGMENTS,
+      x,
+      y,
+      seed,
+      scaleH * scale * stateScaleH,
+      scaleV * scale
+    );
+  }
 
-    // Update the generator function
-    fh.setSunshineGenerator(hash,
-       (segments: number, x: number, y: number) => {
-      return perlinMap(segments, x, y, seed, scaleH * scale, scaleV * scale);
-    });
-  }, [fh]);
+  private updateState(updates: Partial<PerlinSunshineState>) {
+    this.state = { ...this.state, ...updates };
+    this.update();
+    this.updateFunction?.();
+  }
 
-  updateFunction(seed, scale, scaleH, scaleV, rawScaleV, rawShift, exponent, octaves, lacunarity, persistence);
+  private updateFunction?: () => void;
 
-  return (
-    <div>
-      <label>Seed:</label>
-      <input type="number" value={seed} onChange={handleSeedChange} style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      {/* <label>SEGMENTS:</label>
-      <input type="number" min="16" max="2048" step="1" value={SEGMENTS} onChange={handleSEGMENTSChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} /> */}
-      <label>Scale:</label>
-      <input type="number" min="0" max="10" step="0.02" value={scale} onChange={handleScaleChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Scale horizontal:</label>
-      <input type="number" min="0" max="10" step="0.01" value={scaleH} onChange={handleScaleHChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Scale vertical:</label>
-      <input type="number" min="0" max="10" step="0.002" value={scaleV} onChange={handleScaleVChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Raw vertical scale:</label>
-      <input type="number" min="0" max="3" step="0.01" value={rawScaleV} onChange={handleRawScaleVChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Raw vertical shift:</label>
-      <input type="number" min="0" max="1" step="0.01" value={rawShift} onChange={handleRawShiftChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Exponent:</label>
-      <input type="number" min="0" max="10" step="0.1" value={exponent} onChange={handleExponentChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Octaves:</label>
-      <input type="number" min="1" max="20" step="1" value={octaves} onChange={handleOctavesChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Lacunarity:</label>
-      <input type="number" min="0" max="1" step="0.01" value={lacunarity} onChange={handleLacunarityChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-      <label>Persistence:</label>
-      <input type="number" min="0" max="20" step="0.5" value={persistence} onChange={handlePersistenceChange}  style={{ backgroundColor: '#2b2a33', padding : '4px', width: '100%'}} />
-    </div>
-  );
+  public settingsPanel(onUpdate?: () => void) {
+
+    this.updateFunction = onUpdate;
+    
+    const {
+      seed,
+      scale,
+      scaleH,
+      scaleV
+    } = this.state;
+
+    return (
+      <div className="perlin-sunshine-settings">
+        <div>
+          <label>Seed: {seed}</label>
+          <input
+            type="range"
+            min="1"
+            max="10000"
+            step="1"
+            value={seed}
+            onChange={(e) => this.updateState({ seed: parseInt(e.target.value) })}
+          />
+        </div>
+
+        <div>
+          <label>Scale: {scale.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0.1"
+            max="10"
+            step="0.1"
+            value={scale}
+            onChange={(e) => this.updateState({ scale: parseFloat(e.target.value) })}
+          />
+        </div>
+
+        <div>
+          <label>Horizontal Scale: {scaleH.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0.1"
+            max="50"
+            step="0.1"
+            value={scaleH}
+            onChange={(e) => this.updateState({ scaleH: parseFloat(e.target.value) })}
+          />
+        </div>
+
+        <div>
+          <label>Vertical Scale: {scaleV.toFixed(4)}</label>
+          <input
+            type="range"
+            min="0.0001"
+            max="0.1"
+            step="0.0001"
+            value={scaleV}
+            onChange={(e) => this.updateState({ scaleV: parseFloat(e.target.value) })}
+          />
+        </div>
+      </div>
+    );
+  }
 }

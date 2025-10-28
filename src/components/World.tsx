@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { FlyingCamera } from './controls/FlyingCamera';
@@ -27,9 +26,7 @@ export const World: React.FC<{ finalAssembly: FinalAssembly}> = ({ finalAssembly
         <FlyingCamera />
         <OrbitControls enableZoom={true} enablePan={true} />
         {finalAssembly.renderTiles()}
-        {/* <fog attafh="fog" args={['#17171b', 30, 100]} /> */}
       </Canvas>
-      {/* <ControlsOverlay /> */}
     </div>
   );
 }
