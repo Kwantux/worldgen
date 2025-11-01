@@ -30,7 +30,7 @@ function generateOctaves(octavesNumber: number, lacunarity: number, persistence:
   //   frequency: Math.pow(lacunarity*(lacunarityScale ** (octavesNumber+1)), octavesNumber+1), 
   //   amplitude: Math.pow(persistence*(persistenceScale ** octavesNumber), octavesNumber)
   // });
-  console.log(result);
+  // console.log(result);
   return result.sort((a, b) => a.amplitude - b.amplitude);
 }
 

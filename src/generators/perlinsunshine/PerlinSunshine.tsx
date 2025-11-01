@@ -85,6 +85,8 @@ export class PerlinSunshine extends Generator<Float32Array> {
 
   public settingsPanel(onUpdate?: () => void) {
 
+    console.log(this.state); 
+
     this.updateFunction = onUpdate;
     
     const {
