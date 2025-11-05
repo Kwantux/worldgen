@@ -6,9 +6,7 @@ export class TemperatureBySunshine extends Generator<Float32Array> {
   private static instance: TemperatureBySunshine;
 
   private constructor() {
-    super(GeneratorType.Temperature, new Map([
-      [GeneratorType.Sunshine, Generator.availableGenerators.get(GeneratorType.Sunshine)!.get("Sunshine: Perlin")!]
-    ]));
+    super(GeneratorType.Temperature);
   }
 
   public static getInstance(): TemperatureBySunshine {

@@ -24,12 +24,12 @@ export class PerlinSunshine extends Generator<Float32Array> {
   private static instance: PerlinSunshine;
 
   private constructor() {
-    super(GeneratorType.Sunshine, new Map());
+    super(GeneratorType.Sunshine);
     this.state = {
       seed: 1000,
       scale: 1,
       scaleH: 10,
-      scaleV: 0.04
+      scaleV: 1
     };
   }
 

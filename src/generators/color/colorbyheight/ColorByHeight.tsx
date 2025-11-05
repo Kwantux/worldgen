@@ -7,9 +7,7 @@ export class ColorByHeight extends Generator<Float32Array> {
   private static instance: ColorByHeight;
 
   private constructor() {
-    super(GeneratorType.Color, new Map([
-      [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)?.get("Height: Warped fBm")!]
-    ]));
+    super(GeneratorType.Color);
   }
 
   public static getInstance(): ColorByHeight {

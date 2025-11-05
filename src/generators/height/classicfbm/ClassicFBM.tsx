@@ -34,7 +34,7 @@ export class ClassicFBM extends Generator<Float32Array> {
   private static instance: ClassicFBM;
 
   private constructor() {
-    super(GeneratorType.Height, new Map());
+    super(GeneratorType.Height);
     this.state = {
       heightNoiseFunction: (x: number, y: number) => perlin(x, y, 1, 1, INCREMENT),
       scale: 1,

@@ -6,9 +6,7 @@ export class TemperatureByHeight extends Generator<Float32Array> {
   private static instance: TemperatureByHeight;
 
   private constructor() {
-    super(GeneratorType.Temperature, new Map([
-      [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Classic fBm")!]
-    ]));
+    super(GeneratorType.Temperature);
   }
 
   public static getInstance(): TemperatureByHeight {

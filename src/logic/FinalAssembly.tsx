@@ -48,17 +48,15 @@ export default class FinalAssembly extends Generator<WorldData> {
     protected buildTile(coordinates: ScaledCoordinate): WorldData {
         const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
         const colorMap = Generator.dependencies.get(GeneratorType.Color)?.getTile(coordinates);
+        // console.log("Height Map:")
+        console.log(heightMap.length)
+        // console.log("Color Map:")
+        console.log(colorMap.length)
         return [heightMap!, colorMap!];
     }
 
     private constructor() {
-        super(GeneratorType.FinalAssembly, new Map(
-            [
-                [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Classic fBm")!],
-                [GeneratorType.Color, Generator.availableGenerators.get(GeneratorType.Color)!.get("Color: by Height")!],
-                [GeneratorType.Temperature, Generator.availableGenerators.get(GeneratorType.Temperature)!.get("Temperature: by Height and Sunshine")!]
-            ]
-        ));
+        super(GeneratorType.FinalAssembly);
         this.generateTiles(this.ringSize, this.levelsOfDetail);
     }
 

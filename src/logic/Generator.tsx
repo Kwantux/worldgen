@@ -9,6 +9,9 @@ export enum GeneratorType {
   Temperature = "Temperature",
   Biome = "Biome",
   Color = "Color",
+  TerrainSteepness = "TerrainSteepness",
+  GroundSolidity = "GroundSolidity",
+  OnGroundVegetation = "OnGroundVegetation",
   FinalAssembly = "FinalAssembly"
 }
 
@@ -17,11 +20,15 @@ export type GeneratorImplementation =
   | "Height: Classic fBm" 
   | "Color: by Biome" 
   | "Color: by Height" 
+  | "Color: by Terrain"
   | "Sunshine: Perlin" 
   | "Temperature: by Height" 
   | "Temperature: by Height and Sunshine" 
   | "Temperature: by Sunshine" 
   | "Humidity: Perlin"
+  | "TerrainSteepness: from Height"
+  | "GroundSolidity: Perlin"
+  | "OnGroundVegetation: by Humidity, Temperature, Height, Steepness, and Solidity"
   | "World Settings";
 
 export type GeneratorMeta = {
@@ -35,29 +42,33 @@ export type GeneratorMeta = {
 export default abstract class Generator<T> {
 
   protected static availableGenerators = new Map<GeneratorType, Map<GeneratorImplementation, Generator<any>>>();
-  private static reverseDependencies: Map<GeneratorType, Generator<any>[]> = new Map();
+  private static dependentGenerators: Map<GeneratorType, Generator<any>[]> = new Map();
   protected static dependencies: Map<GeneratorType, Generator<any>> = new Map();
 
   static {
     for (const type of Object.values(GeneratorType)) {
       Generator.availableGenerators.set(type, new Map());
-      Generator.reverseDependencies.set(type, []);
+      Generator.dependentGenerators.set(type, []);
     }
   }
 
 
   protected readonly type: GeneratorType;
 
-  protected constructor(type: GeneratorType, defaultDependencies: Map<GeneratorType, Generator<any>>) {
+  protected constructor(type: GeneratorType) {
     this.type = type;
+  }
 
-    defaultDependencies.forEach(dependency => {
-      if (!Generator.dependencies.has(dependency.type)) {
-        Generator.dependencies.set(dependency.type, dependency);
-      }
-      console.log("Adding dependency: " + dependency.type + " to " + this.meta().name);
-      Generator.reverseDependencies.get(dependency.type)?.push(this);
-    });
+  public static setDependency(dependencyType: GeneratorType, generator: Generator<any>) {
+    Generator.dependencies.set(dependencyType, generator);
+    console.log("Setting dependency: " + dependencyType + " to " + generator.meta().name);
+  }
+
+  public static registerDependent(dependentGenerator: Generator<any>, dependencyType: GeneratorType) {
+    const dependents = Generator.dependentGenerators.get(dependencyType);
+    if (dependents && !dependents.includes(dependentGenerator)) {
+      dependents.push(dependentGenerator);
+    }
   }
 
   public abstract meta(): GeneratorMeta;
@@ -80,9 +91,9 @@ export default abstract class Generator<T> {
         throw new Error("Dependency " + dependencyType + " not found");
       }
       generators.add(dependency);
-      Generator.dependenciesOf(dependency).forEach(dependency => {
-        generators.add(dependency);
-      });
+      // Generator.dependenciesOf(dependency).forEach(dependency => {
+      //   generators.add(dependency);
+      // });
     });
     return generators;
   }
@@ -92,7 +103,7 @@ export default abstract class Generator<T> {
   }
 
   private static updateDependents(generator: Generator<any>): void {
-    Generator.reverseDependencies.get(generator.type)?.forEach(dependent => {
+    Generator.dependentGenerators.get(generator.type)?.forEach((dependent: Generator<any>) => {
       dependent.update();
     });
   } 
@@ -130,13 +141,17 @@ export default abstract class Generator<T> {
           <div key={index}>
             {dependency}
             <select value={Generator.dependencies.get(dependency)?.meta().name} onChange={(e) => {
+              console.log("CHANING GENERATOR TO: " + e.target.value);
               const selectedGenerator = Generator.availableGenerators.get(dependency)?.get(e.target.value as GeneratorImplementation);
               if (selectedGenerator) {
-                Generator.reverseDependencies.get(dependency)?.filter(generator => generator !== this);
+                console.log("success")
                 Generator.dependencies.set(dependency, selectedGenerator);
-                Generator.reverseDependencies.get(selectedGenerator.type)?.push(this);
                 this.update();
+                console.log(onUpdate)
                 onUpdate?.();
+              }
+              else {
+                console.log("Selected generator not found: " + e.target.value);
               }
             }}
             style={{

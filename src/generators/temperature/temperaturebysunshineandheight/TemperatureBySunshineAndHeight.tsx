@@ -5,6 +5,8 @@ import { ScaledCoordinate } from '../../../util/Types';
 type TemperatureByHeightAndSunshineState = {
   weightHeight: number;
   weightSunshine: number;
+  maxHeight: number;
+  maxSunshine: number;
 };
 
 export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
@@ -12,22 +14,23 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
     const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
     const sunshineMap = Generator.dependencies.get(GeneratorType.Sunshine)?.getTile(coordinates);
 
+    console.log(sunshineMap)
+
     if (!heightMap || !sunshineMap) {
       throw new Error("Height and/or sunshine map dependency not met.");
     }
 
     const data = new Float32Array(heightMap.length);
-    const maxHeight = Math.max(...heightMap);
-    const minHeight = Math.min(...heightMap);
-    const maxSunshine = Math.max(...sunshineMap);
-    const minSunshine = Math.min(...sunshineMap);
-
-    const { weightHeight, weightSunshine } = this.state;
+    const { weightHeight, weightSunshine, maxHeight, maxSunshine } = this.state;
 
     for (let i = 0; i < heightMap.length; i++) {
-      data[i] = (1 - ((heightMap[i] - minHeight) / (maxHeight - minHeight))) * weightHeight +
-                ((sunshineMap[i] - minSunshine) / (maxSunshine - minSunshine)) * weightSunshine;
+      const normalizedHeight = Math.max(0, Math.min(1, heightMap[i] / maxHeight));
+      const normalizedSunshine = Math.max(0, Math.min(1, sunshineMap[i] / maxSunshine));
+      
+      // Higher height = lower temperature, higher sunshine = higher temperature
+      data[i] = (1 - normalizedHeight) * weightHeight + normalizedSunshine * weightSunshine;
     }
+
     return data;
   }
 
@@ -35,13 +38,12 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
   private static instance: TemperatureByHeightAndSunshine;
 
   private constructor() {
-    super(GeneratorType.Temperature, new Map([
-      [GeneratorType.Height, Generator.availableGenerators.get(GeneratorType.Height)!.get("Height: Classic fBm")!],
-      [GeneratorType.Sunshine, Generator.availableGenerators.get(GeneratorType.Sunshine)!.get("Sunshine: Perlin")!]
-    ]));
+    super(GeneratorType.Temperature);
     this.state = {
       weightHeight: 0.5,
-      weightSunshine: 0.5
+      weightSunshine: 0.5,
+      maxHeight: 500,
+      maxSunshine: 1
     };
   }
 
@@ -74,7 +76,7 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
   private updateFunction?: () => void;
 
   public settingsPanel(onUpdate?: () => void) {
-    const { weightHeight, weightSunshine } = this.state;
+    const { weightHeight, weightSunshine, maxHeight, maxSunshine } = this.state;
 
     this.updateFunction = onUpdate;
 
@@ -106,6 +108,34 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
             onChange={(e) => this.updateState({
               weightSunshine: parseFloat(e.target.value),
               weightHeight: 1 - parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Max Height: {maxHeight.toFixed(0)}</label>
+          <input
+            type="range"
+            min="1"
+            max="1000"
+            step="10"
+            value={maxHeight}
+            onChange={(e) => this.updateState({
+              maxHeight: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Max Sunshine: {maxSunshine.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value={maxSunshine}
+            onChange={(e) => this.updateState({
+              maxSunshine: parseFloat(e.target.value)
             })}
           />
         </div>
