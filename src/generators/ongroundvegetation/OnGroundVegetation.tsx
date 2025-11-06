@@ -30,8 +30,6 @@ export class OnGroundVegetation extends Generator<VegetationTile> {
       throw new Error("Humidity, Temperature, Height, TerrainSteepness, and/or GroundSolidity map dependency not met.");
     }
 
-    console.log(humidityMap);
-
     const vegetation = createVegetationTile(humidityMap.length);
     const { 
       humidityWeight, temperatureWeight, steepnessWeight, solidityWeight,
@@ -44,9 +42,6 @@ export class OnGroundVegetation extends Generator<VegetationTile> {
     for (let i = 0; i < humidityMap.length; i++) {
       // Scale raw values without normalization
       const humidity = Math.max(0, Math.min(1, humidityMap[i] * humidityScale));
-      if (humidity === 0) {
-        console.log("Humidity zero: " + humidityMap[i])
-      };
 
       const temperature = Math.max(0, Math.min(1, temperatureMap[i] * temperatureScale));
       const steepness = Math.max(0, Math.min(1, steepnessMap[i] * steepnessScale));
@@ -57,6 +52,7 @@ export class OnGroundVegetation extends Generator<VegetationTile> {
       const temperatureScore = 1 - Math.abs(temperature - optimalTemperature);
       const steepnessScore = steepness <= maxSteepness ? 1 - (steepness / maxSteepness) : 0;
       const solidityScore = 1 - Math.abs(solidity - optimalSolidity);
+      const solidityFactor = 1 - Math.pow(solidity, 3);
 
       // Weighted combination for vegetation potential
       const vegetationPotential = (
@@ -64,7 +60,7 @@ export class OnGroundVegetation extends Generator<VegetationTile> {
         temperatureScore * temperatureWeight +
         steepnessScore * steepnessWeight +
         solidityScore * solidityWeight
-      ) / totalWeight;
+      ) * solidityFactor / totalWeight;
 
       // Height is determined by humidity and solidity (more soil = taller grass)
       vegetation.height[i] = vegetationPotential * (0.3 + solidity * 0.7);
@@ -75,8 +71,6 @@ export class OnGroundVegetation extends Generator<VegetationTile> {
       // Greenness is determined by humidity (more moisture = more vibrant green)
       vegetation.greenness[i] = humidity;
     }
-
-    console.log(vegetation);
 
     return vegetation;
   }

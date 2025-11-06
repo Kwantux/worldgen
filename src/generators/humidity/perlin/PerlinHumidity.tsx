@@ -1,14 +1,12 @@
 import Generator from '../../../logic/Generator';
 import { GeneratorType } from '../../../logic/Generator';
-import { perlinMap } from '../../perlinsunshine/Functions';
+import { perlinMap } from '../../sunshine/perlin/Functions';
 import { ScaledCoordinate } from '../../../util/Types';
 import { SEGMENTS } from '../../../components/terrain/Tile';
 
 type PerlinHumidityState = {
   seed: number;
-  scale: number;
   scaleH: number;
-  scaleV: number;
 };
 
 export class PerlinHumidity extends Generator<Float32Array> {
@@ -27,9 +25,7 @@ export class PerlinHumidity extends Generator<Float32Array> {
     super(GeneratorType.Humidity);
     this.state = {
       seed: 1000,
-      scale: 1,
-      scaleH: 10,
-      scaleV: 1
+      scaleH: 0.03,
     };
   }
 
@@ -60,18 +56,16 @@ export class PerlinHumidity extends Generator<Float32Array> {
   ): Float32Array {
     const {
       seed,
-      scale,
       scaleH: stateScaleH,
-      scaleV
     } = this.state;
+
 
     return perlinMap(
       SEGMENTS,
       x,
       y,
       seed,
-      scaleH * scale * stateScaleH,
-      scaleV * scale
+      scaleH * stateScaleH,
     );
   }
 
@@ -85,15 +79,11 @@ export class PerlinHumidity extends Generator<Float32Array> {
 
   public settingsPanel(onUpdate?: () => void) {
 
-    console.log(this.state); 
-
     this.updateFunction = onUpdate;
     
     const {
       seed,
-      scale,
       scaleH,
-      scaleV
     } = this.state;
 
     return (
@@ -101,7 +91,7 @@ export class PerlinHumidity extends Generator<Float32Array> {
         <div>
           <label>Seed: {seed}</label>
           <input
-            type="range"
+            type="number"
             min="1"
             max="10000"
             step="1"
@@ -111,21 +101,9 @@ export class PerlinHumidity extends Generator<Float32Array> {
         </div>
 
         <div>
-          <label>Scale: {scale.toFixed(2)}</label>
-          <input
-            type="range"
-            min="0.1"
-            max="10"
-            step="0.1"
-            value={scale}
-            onChange={(e) => this.updateState({ scale: parseFloat(e.target.value) })}
-          />
-        </div>
-
-        <div>
           <label>Horizontal Scale: {scaleH.toFixed(2)}</label>
           <input
-            type="range"
+            type="number"
             min="0.1"
             max="50"
             step="0.1"
@@ -134,17 +112,6 @@ export class PerlinHumidity extends Generator<Float32Array> {
           />
         </div>
 
-        <div>
-          <label>Vertical Scale: {scaleV.toFixed(4)}</label>
-          <input
-            type="range"
-            min="0.0001"
-            max="0.1"
-            step="0.0001"
-            value={scaleV}
-            onChange={(e) => this.updateState({ scaleV: parseFloat(e.target.value) })}
-          />
-        </div>
       </div>
     );
   }

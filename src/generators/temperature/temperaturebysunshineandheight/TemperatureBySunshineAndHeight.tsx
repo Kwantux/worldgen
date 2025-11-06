@@ -14,8 +14,6 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
     const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
     const sunshineMap = Generator.dependencies.get(GeneratorType.Sunshine)?.getTile(coordinates);
 
-    console.log(sunshineMap)
-
     if (!heightMap || !sunshineMap) {
       throw new Error("Height and/or sunshine map dependency not met.");
     }

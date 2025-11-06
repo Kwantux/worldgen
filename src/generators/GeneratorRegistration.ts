@@ -4,7 +4,7 @@ import { WarpedFBM } from "./height/warpedfbm/WarpedFBM";
 import { ClassicFBM } from "./height/classicfbm/ClassicFBM";
 import { ColorByHeight } from "./color/colorbyheight/ColorByHeight";
 import { ColorByTerrain } from "./color/colorbyterrain/ColorByTerrain";
-import { PerlinSunshine } from "./perlinsunshine/PerlinSunshine";
+import { PerlinSunshine } from "./sunshine/perlin/PerlinSunshine";
 import { TemperatureByHeight } from "./temperature/temperaturebyheight/TemperatureByHeight";
 import { TemperatureBySunshine } from "./temperature/temperaturebysunshine/TemperatureBySunshine";
 import { PerlinHumidity } from "./humidity/perlin/PerlinHumidity";
@@ -12,6 +12,10 @@ import { TemperatureByHeightAndSunshine } from "./temperature/temperaturebysunsh
 import { TerrainSteepness } from "./terrainsteepness/TerrainSteepness";
 import { GroundSolidity } from "./groundsolidity/GroundSolidity";
 import { OnGroundVegetation } from "./ongroundvegetation/OnGroundVegetation";
+import { ColorByHumidity } from "./color/colorbyhumidity/ColorByHumidity";
+import { ColorBySunshine } from "./color/colorbysunshine/ColorBySunshine";
+import { ColorBySteepness } from "./color/colorbysteepness/ColorBySteepness";
+import { ColorByGroundSolidity } from "./color/colorbysolidity/ColorByGroundSolidity";
 
 export const registerGenerators = () => {
     // Register height map generators
@@ -21,6 +25,10 @@ export const registerGenerators = () => {
     // Register color map generators
     Generator.registerGenerator(ColorByHeight.meta());
     Generator.registerGenerator(ColorByTerrain.meta());
+    Generator.registerGenerator(ColorByHumidity.meta());
+    Generator.registerGenerator(ColorBySunshine.meta());
+    Generator.registerGenerator(ColorBySteepness.meta());
+    Generator.registerGenerator(ColorByGroundSolidity.meta());
 
     // Register sunshine generators
     Generator.registerGenerator(PerlinSunshine.meta());
@@ -51,14 +59,14 @@ export const registerGenerators = () => {
 
 const setDefaultDependencies = () => {
     // Set default dependencies - each type should have exactly one default
-    Generator.setDependency(GeneratorType.Height, WarpedFBM.getInstance());
-    Generator.setDependency(GeneratorType.Sunshine, PerlinSunshine.getInstance());
-    Generator.setDependency(GeneratorType.Temperature, TemperatureByHeightAndSunshine.getInstance());
-    Generator.setDependency(GeneratorType.Humidity, PerlinHumidity.getInstance());
-    Generator.setDependency(GeneratorType.TerrainSteepness, TerrainSteepness.getInstance());
-    Generator.setDependency(GeneratorType.GroundSolidity, GroundSolidity.getInstance());
-    Generator.setDependency(GeneratorType.OnGroundVegetation, OnGroundVegetation.getInstance());
-    Generator.setDependency(GeneratorType.Color, ColorByTerrain.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Height, WarpedFBM.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Sunshine, PerlinSunshine.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Temperature, TemperatureByHeightAndSunshine.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Humidity, PerlinHumidity.getInstance());
+    Generator.setDefaultDependency(GeneratorType.TerrainSteepness, TerrainSteepness.getInstance());
+    Generator.setDefaultDependency(GeneratorType.GroundSolidity, GroundSolidity.getInstance());
+    Generator.setDefaultDependency(GeneratorType.OnGroundVegetation, OnGroundVegetation.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Color, ColorByTerrain.getInstance());
 
     // Register dependents - which generators depend on which types
     // ColorByTerrain depends on: GroundSolidity, TerrainSteepness, OnGroundVegetation, Temperature

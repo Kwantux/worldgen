@@ -1,9 +1,11 @@
 import Generator, { GeneratorMeta } from '../../../logic/Generator';
 import { GeneratorType } from '../../../logic/Generator';
 import { warpedMap } from './Functions';
-import { ScaledCoordinate } from '../../../util/Types';
+import { LevelOfDetail, ScaledCoordinate } from '../../../util/Types';
 import { SEGMENTS } from '../../../components/terrain/Tile';
 import { perlin } from '../perlinheight/Functions';
+import { ReactElement } from 'react';
+import { generateHeightMapImage } from '../../../util/ArrayToImage';
 
 type WarpedFBMState = {
   heightNoiseFunction: (x: number, y: number) => number;
@@ -95,8 +97,6 @@ export class WarpedFBM extends Generator<Float32Array> {
       persistenceIncByHeight 
     } = this.state;
 
-    // console.log("GENERATING", this.state);
-
     return warpedMap(
       heightNoiseFunction,
       SEGMENTS,
@@ -118,7 +118,6 @@ export class WarpedFBM extends Generator<Float32Array> {
   }
 
   private updateState(updates: Partial<WarpedFBMState>, onUpdate?: () => void) {
-    console.log(updates);
     this.state = { ...this.state, ...updates };
     this.update();
     onUpdate?.();

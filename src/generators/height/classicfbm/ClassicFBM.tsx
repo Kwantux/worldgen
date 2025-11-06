@@ -93,8 +93,6 @@ export class ClassicFBM extends Generator<Float32Array> {
       persistenceScale
     } = this.state;
 
-    // console.log("GENERATING", this.state);
-
     return classicFbmMap(
       heightNoiseFunction,
       x,

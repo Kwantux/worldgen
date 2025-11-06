@@ -6,6 +6,10 @@ import { ScaledCoordinate } from '../../util/Types';
 type GroundSolidityState = {
   scale: number;
   offset: number;
+  heightFactor: number;
+  maxHeight: number;
+  steepnessFactor: number;
+  humidityFactor: number;
 };
 
 export class GroundSolidity extends Generator<Float32Array> {
@@ -13,19 +17,19 @@ export class GroundSolidity extends Generator<Float32Array> {
     // Simple Perlin-like noise generation for ground solidity
     // 0 = sand, 0.5 = soil, 1 = rock
     const data = new Float32Array(SEGMENTS*SEGMENTS); // Assuming 16x16 tile
-    const { scale, offset } = this.state;
-    const [coordX, coordY] = coordinates.coordinate;
+    const { scale, offset, heightFactor, maxHeight, steepnessFactor, humidityFactor } = this.state;
+    const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
+    const terrainSteepnessMap = Generator.dependencies.get(GeneratorType.TerrainSteepness)?.getTile(coordinates);
+    const humidityMap = Generator.dependencies.get(GeneratorType.Humidity)?.getTile(coordinates);
 
     for (let i = 0; i < data.length; i++) {
-      // Use coordinate-based pseudo-random generation
-      // const x = i % INCREMENT;
-      // const y = Math.floor(i / INCREMENT);
-      // const seed = coordX * 73856093 ^ coordY * 19349663 ^ (x + y * INCREMENT) * 83492791;
-      // const random = Math.sin(seed) * 43758.5453;
-      // const value = random - Math.floor(random);
+      // Calculate ground solidity based on height, steepness, and humidity
+      const heightValue = Math.min(1, heightMap ? heightMap[i] / maxHeight * heightFactor : 0);
+      const steepnessValue = Math.min(1, terrainSteepnessMap ? terrainSteepnessMap[i] * steepnessFactor : 0);
+      const humidityValue = Math.min(1, humidityMap ? humidityMap[i] * humidityFactor : 0);
+      const value = Math.max(0, Math.min(1, (heightValue + steepnessValue + humidityValue) * scale + offset));
 
-      // data[i] = Math.max(0, Math.min(1, value * scale + offset));
-      data[i] = 1;
+      data[i] = value;
     }
 
     return data;
@@ -38,7 +42,11 @@ export class GroundSolidity extends Generator<Float32Array> {
     super(GeneratorType.GroundSolidity);
     this.state = {
       scale: 1,
-      offset: 0.5
+      offset: 0.5,
+      heightFactor: 0.2,
+      maxHeight: 200,
+      steepnessFactor: 0.3,
+      humidityFactor: 0.1
     };
   }
 
@@ -53,7 +61,7 @@ export class GroundSolidity extends Generator<Float32Array> {
     return {
       type: GeneratorType.GroundSolidity,
       name: 'GroundSolidity: Perlin' as const,
-      dependencies: [],
+      dependencies: [GeneratorType.Height, GeneratorType.TerrainSteepness, GeneratorType.Humidity],
       constructor: () => GroundSolidity.getInstance()
     };
   }
@@ -71,7 +79,7 @@ export class GroundSolidity extends Generator<Float32Array> {
   private updateFunction?: () => void;
 
   public settingsPanel(onUpdate?: () => void) {
-    const { scale, offset } = this.state;
+    const { scale, offset, heightFactor, maxHeight, steepnessFactor, humidityFactor } = this.state;
 
     this.updateFunction = onUpdate;
 
@@ -101,6 +109,62 @@ export class GroundSolidity extends Generator<Float32Array> {
             value={offset}
             onChange={(e) => this.updateState({
               offset: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Max Height: {maxHeight.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            step="1"
+            value={maxHeight}
+            onChange={(e) => this.updateState({
+              maxHeight: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Height Factor: {heightFactor.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={heightFactor}
+            onChange={(e) => this.updateState({
+              heightFactor: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Steepness Factor: {steepnessFactor.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={steepnessFactor}
+            onChange={(e) => this.updateState({
+              steepnessFactor: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>humidity Factor: {humidityFactor.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={humidityFactor}
+            onChange={(e) => this.updateState({
+              humidityFactor: parseFloat(e.target.value)
             })}
           />
         </div>

@@ -15,7 +15,7 @@ export class TerrainSteepness extends Generator<Float32Array> {
     }
 
     const data = new Float32Array(heightMap.length);
-    const { scale } = this.state;
+    const scale  = this.state.scale / coordinates.levelOfDetail.scale();
     const tileSize = Math.sqrt(heightMap.length);
 
     for (let i = 0; i < heightMap.length; i++) {

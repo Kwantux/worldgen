@@ -48,10 +48,7 @@ export default class FinalAssembly extends Generator<WorldData> {
     protected buildTile(coordinates: ScaledCoordinate): WorldData {
         const heightMap = Generator.dependencies.get(GeneratorType.Height)?.getTile(coordinates);
         const colorMap = Generator.dependencies.get(GeneratorType.Color)?.getTile(coordinates);
-        // console.log("Height Map:")
-        console.log(heightMap.length)
-        // console.log("Color Map:")
-        console.log(colorMap.length)
+
         return [heightMap!, colorMap!];
     }
 

@@ -13,7 +13,6 @@ type RGB = [number, number, number];
 export class ColorByTerrain extends Generator<Float32Array> {
   protected buildTile(coordinates: ScaledCoordinate): Float32Array {
 
-    console.log("Color by terrain buildTile called")
     const solidityMap = Generator.dependencies.get(GeneratorType.GroundSolidity)?.getTile(coordinates);
     const steepnessMap = Generator.dependencies.get(GeneratorType.TerrainSteepness)?.getTile(coordinates);
     const vegetationTile = Generator.dependencies.get(GeneratorType.OnGroundVegetation)?.getTile(coordinates) as VegetationTile;
@@ -50,16 +49,7 @@ export class ColorByTerrain extends Generator<Float32Array> {
 
         // Blend vegetation color onto base color using area as blend factor
         const blendedColor = this.blendColors(baseColor, vegetationColor, vegetationArea);
-
-        // if (isNaN(blendedColor[0])) {
-        //   console.log("blendedColor[0] is NaN")
-        //   console.log("Solidity: " + solidity)
-        //   console.log("Steepness: " + steepness)
-        //   console.log("Temperature: " + temperature)
-        //   console.log("Greenness: " + greenness)
-        //   console.log("Vegetation Area: " + vegetationArea)
-        // }
-
+        
         data[i * 3] = blendedColor[0];
         data[i * 3 + 1] = blendedColor[1];
         data[i * 3 + 2] = blendedColor[2];

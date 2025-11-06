@@ -1,3 +1,4 @@
+import { ReactElement } from "react";
 import { ScaledCoordinate } from "../util/Types";
 
 export enum GeneratorType {
@@ -20,6 +21,10 @@ export type GeneratorImplementation =
   | "Height: Classic fBm" 
   | "Color: by Biome" 
   | "Color: by Height" 
+  | "Color: by Humidity"
+  | "Color: by Steepness"
+  | "Color: by Ground Solidity"
+  | "Color: by Sunshine"
   | "Color: by Terrain"
   | "Sunshine: Perlin" 
   | "Temperature: by Height" 
@@ -62,6 +67,14 @@ export default abstract class Generator<T> {
   public static setDependency(dependencyType: GeneratorType, generator: Generator<any>) {
     Generator.dependencies.set(dependencyType, generator);
     console.log("Setting dependency: " + dependencyType + " to " + generator.meta().name);
+  }
+
+  public static setDefaultDependency(dependencyType: GeneratorType, generator: Generator<any>) {
+    if (Generator.dependencies.has(dependencyType)) {
+      return;
+    }
+    Generator.dependencies.set(dependencyType, generator);
+    console.log("Setting default dependency: " + dependencyType + " to " + generator.meta().name);
   }
 
   public static registerDependent(dependentGenerator: Generator<any>, dependencyType: GeneratorType) {
@@ -141,13 +154,10 @@ export default abstract class Generator<T> {
           <div key={index}>
             {dependency}
             <select value={Generator.dependencies.get(dependency)?.meta().name} onChange={(e) => {
-              console.log("CHANING GENERATOR TO: " + e.target.value);
               const selectedGenerator = Generator.availableGenerators.get(dependency)?.get(e.target.value as GeneratorImplementation);
               if (selectedGenerator) {
-                console.log("success")
                 Generator.dependencies.set(dependency, selectedGenerator);
                 this.update();
-                console.log(onUpdate)
                 onUpdate?.();
               }
               else {
@@ -211,4 +221,5 @@ export default abstract class Generator<T> {
     });
     Generator.updateDependents(this);
   }
+
 }
