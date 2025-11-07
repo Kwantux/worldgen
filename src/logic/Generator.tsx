@@ -25,6 +25,7 @@ export type GeneratorImplementation =
   | "Color: by Steepness"
   | "Color: by Ground Solidity"
   | "Color: by Sunshine"
+  | "Color: by Temperature"
   | "Color: by Terrain"
   | "Sunshine: Perlin" 
   | "Temperature: by Height" 

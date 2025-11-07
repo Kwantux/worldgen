@@ -16,6 +16,7 @@ import { ColorByHumidity } from "./color/colorbyhumidity/ColorByHumidity";
 import { ColorBySunshine } from "./color/colorbysunshine/ColorBySunshine";
 import { ColorBySteepness } from "./color/colorbysteepness/ColorBySteepness";
 import { ColorByGroundSolidity } from "./color/colorbysolidity/ColorByGroundSolidity";
+import { ColorByTemperature } from "./color/colorbytemperature/ColorByTemperature";
 
 export const registerGenerators = () => {
     // Register height map generators
@@ -23,9 +24,10 @@ export const registerGenerators = () => {
     Generator.registerGenerator(ClassicFBM.meta());
 
     // Register color map generators
-    Generator.registerGenerator(ColorByHeight.meta());
     Generator.registerGenerator(ColorByTerrain.meta());
+    Generator.registerGenerator(ColorByHeight.meta());
     Generator.registerGenerator(ColorByHumidity.meta());
+    Generator.registerGenerator(ColorByTemperature.meta());
     Generator.registerGenerator(ColorBySunshine.meta());
     Generator.registerGenerator(ColorBySteepness.meta());
     Generator.registerGenerator(ColorByGroundSolidity.meta());
