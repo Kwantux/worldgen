@@ -68,7 +68,7 @@ export default class FinalAssembly extends Generator<WorldData> {
         return {
             type: GeneratorType.FinalAssembly,
             name: "World Settings",
-            dependencies: [GeneratorType.Height, GeneratorType.Color, GeneratorType.Temperature],
+            dependencies: [GeneratorType.Height, GeneratorType.Color],
             constructor: () => FinalAssembly.getInstance()
         }
     }
