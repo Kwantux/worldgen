@@ -44,7 +44,7 @@ export class WarpedFBM extends Generator<Float32Array> {
       scaleV: 0.04,
       rawScaleV: 0.7,
       rawShift: 0.22,
-      verticalShift: -250,
+      verticalShift: -280,
       exponent: 10,
       octaves: 7,
       lacunarity: 0.34,

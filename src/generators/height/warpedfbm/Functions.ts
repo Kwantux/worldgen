@@ -43,10 +43,10 @@ function octave(heightNoiseFunction: (x: number, y: number) => number, x: number
   let plainliness = 0.5+heightNoiseFunction(x * octaves[octaves.length-1].frequency/2, y * octaves[octaves.length-1].frequency/2)/2; // 0 to 1
 
   for (let i = 0; i < octaves.length; i++) {
-    const exp = i==octaves.length-1 ? 1: lerp(1, exponent, roughHeight**3);
+    const exp = i==octaves.length-1 ? 1: lerp(0, exponent, roughHeight**3);
     const raw: number = 0.5+heightNoiseFunction(x * octaves[i].frequency, y * octaves[i].frequency)/2;
     const h = lerp(fade(raw**2), raw, plainliness)*2-1;
-    sum += (((h+1) * rawScaleV + rawShift) ** exp) * octaves[i].amplitude * lerp(1, persistenceIncByHeight*roughHeight, 1-i/octaves.length);
+    sum += (((h+1) * rawScaleV + rawShift) ** exp) * octaves[i].amplitude * lerp(1, persistenceIncByHeight*roughHeight, (1-i/octaves.length)**3);
   }
   return sum;
 }

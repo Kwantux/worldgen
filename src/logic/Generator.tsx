@@ -1,4 +1,3 @@
-import { ReactElement } from "react";
 import { ScaledCoordinate } from "../util/Types";
 
 export enum GeneratorType {
