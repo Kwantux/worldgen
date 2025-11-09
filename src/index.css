@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+input {
+  @apply bg-gray-400 text-white rounded border border-gray-600;
+}
