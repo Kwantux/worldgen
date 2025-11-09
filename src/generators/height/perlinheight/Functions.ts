@@ -50,8 +50,8 @@ export function fade(f: number): number {
   
 // calculate the gradient vectors and dot product
 function gradient(c: number, x: number, y: number): number {
-  const vectors: number[][] = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-  const gradient_co: number[] = vectors[c % 4];
+  const vectors: number[][] = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  const gradient_co: number[] = vectors[c % 8];
   return gradient_co[0] * x + gradient_co[1] * y;
 }
 
