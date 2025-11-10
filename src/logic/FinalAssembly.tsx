@@ -9,8 +9,8 @@ export default class FinalAssembly extends Generator<WorldData> {
     private static instance: FinalAssembly;
 
     private tiles: Map<ScaledCoordinate, Tile> = new Map();
-    private ringSize: number = 4;
-    private levelsOfDetail = 1;
+    private ringSize: number = 2;
+    private levelsOfDetail = 5;
 
     private updateFunction?: () => void;
 
@@ -55,6 +55,7 @@ export default class FinalAssembly extends Generator<WorldData> {
     private constructor() {
         super(GeneratorType.FinalAssembly);
         this.generateTiles(this.ringSize, this.levelsOfDetail);
+        this.setRingSize(this.ringSize);
     }
 
     public static getInstance(): FinalAssembly {
@@ -96,7 +97,8 @@ export default class FinalAssembly extends Generator<WorldData> {
         }
         this.ringSize = newRingSize;
         this.generateTiles(this.ringSize, this.levelsOfDetail);
-        this.update();
+        
+        setTimeout(this.update.bind(this), 3000);
     }
 
     private setLevelsOfDetail(newLevelsOfDetail: number): void {
