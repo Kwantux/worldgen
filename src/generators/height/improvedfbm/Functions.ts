@@ -2,8 +2,8 @@
 
 import { fade } from "../perlinheight/Functions";
 
-// Generates terrain heightmap using warped fractal Brownian motion
-export function warpedMap(
+// Generates terrain heightmap using improved fractal Brownian motion
+export function improvedMap(
   heightNoiseFunction: (x: number, y: number) => number,
   segments: number,
   x: number,
@@ -23,7 +23,7 @@ export function warpedMap(
 ): Float32Array {
   const data = new Float32Array(segments * segments);
   if (scaleH === 0) {
-    console.error("[WarpedFBM] scaleH must not be 0");
+    console.error("[ImprovedFBM] scaleH must not be 0");
     return data;
   }
 
@@ -74,7 +74,7 @@ type Octave = {
 }
 
 
-// Combines multiple octaves of noise with warping effects
+// Combines multiple octaves of noise
 function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: Octave[], rawScaleV: number, rawShift: number, exponent: number, persistenceIncByHeight: number) {
   let sum = 0;
   

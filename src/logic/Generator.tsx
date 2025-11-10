@@ -16,7 +16,7 @@ export enum GeneratorType {
 }
 
 export type GeneratorImplementation = 
-  | "Height: Warped fBm" 
+  | "Height: Improved fBm" 
   | "Height: Classic fBm" 
   | "Color: by Biome" 
   | "Color: by Height" 

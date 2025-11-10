@@ -1,6 +1,6 @@
 import Generator, { GeneratorType } from "../logic/Generator";
 import FinalAssembly from "../logic/FinalAssembly";
-import { WarpedFBM } from "./height/warpedfbm/WarpedFBM";
+import { ImprovedFBM } from "./height/improvedfbm/ImprovedFBM";
 import { ClassicFBM } from "./height/classicfbm/ClassicFBM";
 import { ColorByHeight } from "./color/colorbyheight/ColorByHeight";
 import { ColorByTerrain } from "./color/colorbyterrain/ColorByTerrain";
@@ -20,7 +20,7 @@ import { ColorByTemperature } from "./color/colorbytemperature/ColorByTemperatur
 
 export const registerGenerators = () => {
     // Register height map generators
-    Generator.registerGenerator(WarpedFBM.meta());
+    Generator.registerGenerator(ImprovedFBM.meta());
     Generator.registerGenerator(ClassicFBM.meta());
 
     // Register color map generators
@@ -61,7 +61,7 @@ export const registerGenerators = () => {
 
 const setDefaultDependencies = () => {
     // Set default dependencies - each type should have exactly one default
-    Generator.setDefaultDependency(GeneratorType.Height, WarpedFBM.getInstance());
+    Generator.setDefaultDependency(GeneratorType.Height, ImprovedFBM.getInstance());
     Generator.setDefaultDependency(GeneratorType.Sunshine, PerlinSunshine.getInstance());
     Generator.setDefaultDependency(GeneratorType.Temperature, TemperatureByHeightAndSunshine.getInstance());
     Generator.setDefaultDependency(GeneratorType.Humidity, PerlinHumidity.getInstance());
