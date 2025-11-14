@@ -22,6 +22,7 @@ type ImprovedFBMState = {
   lacunarityScale: number;
   persistenceScale: number;
   persistenceIncByHeight: number;
+  plainliness_frequency: number;
 };
 
 export class ImprovedFBM extends Generator<Float32Array> {
@@ -51,7 +52,8 @@ export class ImprovedFBM extends Generator<Float32Array> {
       persistence: 3.3,
       lacunarityScale: 0.96,
       persistenceScale: 1.06,
-      persistenceIncByHeight: 1
+      persistenceIncByHeight: 1,
+      plainliness_frequency: 0.3
     };
   }
 
@@ -94,7 +96,8 @@ export class ImprovedFBM extends Generator<Float32Array> {
       persistence, 
       lacunarityScale, 
       persistenceScale, 
-      persistenceIncByHeight 
+      persistenceIncByHeight,
+      plainliness_frequency 
     } = this.state;
 
     return improvedMap(
@@ -113,7 +116,8 @@ export class ImprovedFBM extends Generator<Float32Array> {
       persistence,
       lacunarityScale,
       persistenceScale,
-      persistenceIncByHeight
+      persistenceIncByHeight,
+      plainliness_frequency
     );
   }
 
@@ -137,7 +141,8 @@ export class ImprovedFBM extends Generator<Float32Array> {
       persistence, 
       lacunarityScale, 
       persistenceScale, 
-      persistenceIncByHeight 
+      persistenceIncByHeight,
+      plainliness_frequency 
     } = this.state;
 
     return (
@@ -269,6 +274,16 @@ export class ImprovedFBM extends Generator<Float32Array> {
             step="0.01"
             value={persistenceIncByHeight}
             onChange={(e) => this.updateState({ persistenceIncByHeight: parseFloat(e.target.value) }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Plainliness Frequency:</label>
+          <input
+            type="number"
+            step="0.01"
+            value={plainliness_frequency}
+            onChange={(e) => this.updateState({ plainliness_frequency: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
       </div>

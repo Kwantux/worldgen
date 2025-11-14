@@ -19,7 +19,8 @@ export function improvedMap(
   persistence: number = 0.5,
   lacunarityScale: number = 1,
   persistenceScale: number = 1,
-  persistenceIncByHeight: number = 0.15
+  persistenceIncByHeight: number = 0.15,
+  plainliness_frequency: number = 0.3
 ): Float32Array {
   const data = new Float32Array(segments * segments);
   if (scaleH === 0) {
@@ -43,7 +44,8 @@ export function improvedMap(
         rawScaleV, 
         rawShift, 
         exponent, 
-        persistenceIncByHeight
+        persistenceIncByHeight,
+        plainliness_frequency
       );
       
       data[i * segments + j] = noise * scaleV + verticalShift;
@@ -75,13 +77,13 @@ type Octave = {
 
 
 // Combines multiple octaves of noise
-function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: Octave[], rawScaleV: number, rawShift: number, exponent: number, persistenceIncByHeight: number) {
+function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: Octave[], rawScaleV: number, rawShift: number, exponent: number, persistenceIncByHeight: number, plainliness_frequency: number) {
   let sum = 0;
   
   // Sample noise at different frequencies for terrain features
   const baseFreq = octaves[octaves.length-1].frequency;
   let roughHeight = 0.5 + heightNoiseFunction(x * baseFreq, y * baseFreq) / 2;  // 0 to 1
-  let plainliness = 0.5 + heightNoiseFunction(x * baseFreq/3, y * baseFreq/3) / 2;  // 0 to 1
+  let plainliness = 0.5 + heightNoiseFunction(x * baseFreq*plainliness_frequency, y * baseFreq*plainliness_frequency) / 2;  // 0 to 1
 
   // Combine all octaves with varying influence
   for (let i = 0; i < octaves.length; i++) {
@@ -96,7 +98,8 @@ function octave(heightNoiseFunction: (x: number, y: number) => number, x: number
     const h1 = 0.5 + heightNoiseFunction(x * octaves[i].frequency, y * octaves[i].frequency) / 2; // 0 to 1
 
     // Smooth height values if plainliness is high
-    const h2 = lerp(fade(h1**2), h1, plainliness) * 2 - 1; // -1 to 1
+    // const h2 = lerp(h1, fade(h1**2), plainliness) * 2 - 1; // -1 to 1
+    const h2 = h1 * 2 - 1; // -1 to 1
 
     // Make fine octaves less influential if plainliness is high
     const h3 = lerp(h2, 0, plainliness*(1-i/octaves.length)); // -1 to 1
