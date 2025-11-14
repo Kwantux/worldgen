@@ -1,13 +1,13 @@
 import Generator, { GeneratorMeta } from '../../../logic/Generator';
 import { GeneratorType } from '../../../logic/Generator';
-import { warpedMap } from './Functions';
+import { improvedMap } from './Functions';
 import { LevelOfDetail, ScaledCoordinate } from '../../../util/Types';
 import { SEGMENTS } from '../../../components/terrain/Tile';
 import { perlin } from '../perlinheight/Functions';
 import { ReactElement } from 'react';
 import { generateHeightMapImage } from '../../../util/ArrayToImage';
 
-type WarpedFBMState = {
+type ImprovedFBMState = {
   heightNoiseFunction: (x: number, y: number) => number;
   scale: number;
   scaleH: number;
@@ -22,9 +22,10 @@ type WarpedFBMState = {
   lacunarityScale: number;
   persistenceScale: number;
   persistenceIncByHeight: number;
+  plainliness_frequency: number;
 };
 
-export class WarpedFBM extends Generator<Float32Array> {
+export class ImprovedFBM extends Generator<Float32Array> {
   protected buildTile(coordinates: ScaledCoordinate): Float32Array {
     return this.generate(
       coordinates.coordinate[0],
@@ -32,8 +33,8 @@ export class WarpedFBM extends Generator<Float32Array> {
       coordinates.levelOfDetail.scale(),
     );
   }
-  private state: WarpedFBMState;
-  private static instance: WarpedFBM;
+  private state: ImprovedFBMState;
+  private static instance: ImprovedFBM;
 
   private constructor() {
     super(GeneratorType.Height);
@@ -51,28 +52,29 @@ export class WarpedFBM extends Generator<Float32Array> {
       persistence: 3.3,
       lacunarityScale: 0.96,
       persistenceScale: 1.06,
-      persistenceIncByHeight: 1
+      persistenceIncByHeight: 1,
+      plainliness_frequency: 0.3
     };
   }
 
-  public static getInstance(): WarpedFBM {
-    if (!WarpedFBM.instance) {
-      WarpedFBM.instance = new WarpedFBM();
+  public static getInstance(): ImprovedFBM {
+    if (!ImprovedFBM.instance) {
+      ImprovedFBM.instance = new ImprovedFBM();
     }
-    return WarpedFBM.instance;
+    return ImprovedFBM.instance;
   }
 
   public static meta(): GeneratorMeta {
     return {
       type: GeneratorType.Height as const,
-      name: 'Height: Warped fBm' as const,
+      name: 'Height: Improved fBm' as const,
       dependencies: [],
-      constructor: () => WarpedFBM.getInstance()
+      constructor: () => ImprovedFBM.getInstance()
     };
   }
 
   public meta(): GeneratorMeta {
-    return WarpedFBM.meta();
+    return ImprovedFBM.meta();
   }
 
   public generate(
@@ -94,10 +96,11 @@ export class WarpedFBM extends Generator<Float32Array> {
       persistence, 
       lacunarityScale, 
       persistenceScale, 
-      persistenceIncByHeight 
+      persistenceIncByHeight,
+      plainliness_frequency 
     } = this.state;
 
-    return warpedMap(
+    return improvedMap(
       heightNoiseFunction,
       SEGMENTS,
       x,
@@ -113,11 +116,12 @@ export class WarpedFBM extends Generator<Float32Array> {
       persistence,
       lacunarityScale,
       persistenceScale,
-      persistenceIncByHeight
+      persistenceIncByHeight,
+      plainliness_frequency
     );
   }
 
-  private updateState(updates: Partial<WarpedFBMState>, onUpdate?: () => void) {
+  private updateState(updates: Partial<ImprovedFBMState>, onUpdate?: () => void) {
     this.state = { ...this.state, ...updates };
     this.update();
     onUpdate?.();
@@ -137,11 +141,12 @@ export class WarpedFBM extends Generator<Float32Array> {
       persistence, 
       lacunarityScale, 
       persistenceScale, 
-      persistenceIncByHeight 
+      persistenceIncByHeight,
+      plainliness_frequency 
     } = this.state;
 
     return (
-      <div className="warped-fbm-settings">
+      <div className="improved-fbm-settings">
         <div>
           <label>Scale:</label>
           <input
@@ -269,6 +274,16 @@ export class WarpedFBM extends Generator<Float32Array> {
             step="0.01"
             value={persistenceIncByHeight}
             onChange={(e) => this.updateState({ persistenceIncByHeight: parseFloat(e.target.value) }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Plainliness Frequency:</label>
+          <input
+            type="number"
+            step="0.01"
+            value={plainliness_frequency}
+            onChange={(e) => this.updateState({ plainliness_frequency: parseFloat(e.target.value) }, onUpdate)}
           />
         </div>
       </div>
