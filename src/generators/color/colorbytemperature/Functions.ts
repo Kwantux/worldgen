@@ -4,8 +4,8 @@ export function colorByTemperature(temperatureMap: Float32Array): Float32Array {
   const data = new Float32Array(temperatureMap.length * 3);
   
   // Temperature ranges (in normalized 0-1)
-  const freezingPoint = 0.5; // 0°C in normalized temperature
-  const boilingPoint = 1.0;  // 100°C in normalized temperature
+  const freezingPoint = 0; // 0°C in normalized temperature
+  const boilingPoint = 1;  // 100°C in normalized temperature
   
   for (let i = 0; i < temperatureMap.length; i++) {
     const temp = temperatureMap[i]; // 0-1 normalized temperature

@@ -7,6 +7,8 @@ type TemperatureByHeightAndSunshineState = {
   weightSunshine: number;
   maxHeight: number;
   maxSunshine: number;
+  shift: number;
+  scale: number;
 };
 
 export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
@@ -19,14 +21,14 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
     }
 
     const data = new Float32Array(heightMap.length);
-    const { weightHeight, weightSunshine, maxHeight, maxSunshine } = this.state;
+    const { weightHeight, weightSunshine, maxHeight, maxSunshine, shift, scale } = this.state;
 
     for (let i = 0; i < heightMap.length; i++) {
       const normalizedHeight = Math.max(0, Math.min(1, heightMap[i] / maxHeight));
       const normalizedSunshine = Math.max(0, Math.min(1, sunshineMap[i] / maxSunshine));
       
       // Higher height = lower temperature, higher sunshine = higher temperature
-      data[i] = (1 - normalizedHeight) * weightHeight + normalizedSunshine * weightSunshine;
+      data[i] = ( (1 - normalizedHeight) * weightHeight + normalizedSunshine * weightSunshine ) * scale + shift;
     }
 
     return data;
@@ -41,7 +43,9 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
       weightHeight: 0.5,
       weightSunshine: 0.5,
       maxHeight: 500,
-      maxSunshine: 1
+      maxSunshine: 1,
+      shift: -0.2,
+      scale: 1.2
     };
   }
 
@@ -74,7 +78,7 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
   private updateFunction?: () => void;
 
   public settingsPanel(onUpdate?: () => void) {
-    const { weightHeight, weightSunshine, maxHeight, maxSunshine } = this.state;
+    const { weightHeight, weightSunshine, maxHeight, maxSunshine, shift, scale } = this.state;
 
     this.updateFunction = onUpdate;
 
@@ -134,6 +138,34 @@ export class TemperatureByHeightAndSunshine extends Generator<Float32Array> {
             value={maxSunshine}
             onChange={(e) => this.updateState({
               maxSunshine: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Shift: {shift.toFixed(2)}</label>
+          <input
+            type="range"
+            min="-1"
+            max="1"
+            step="0.01"
+            value={shift}
+            onChange={(e) => this.updateState({
+              shift: parseFloat(e.target.value)
+            })}
+          />
+        </div>
+
+        <div>
+          <label>Scale: {scale.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value={scale}
+            onChange={(e) => this.updateState({
+              scale: parseFloat(e.target.value)
             })}
           />
         </div>
