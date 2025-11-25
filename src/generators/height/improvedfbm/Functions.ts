@@ -20,7 +20,15 @@ export function improvedMap(
   lacunarityScale: number = 1,
   persistenceScale: number = 1,
   persistenceIncByHeight: number = 0.15,
-  plainliness_frequency: number = 0.3
+  plainliness_frequency: number = 0.3,
+
+  // Enable improvements
+  largestOctaveExponentOne: boolean = true,
+  octaveDependentExponent: boolean = true,
+  heightDependentExponent: boolean = true,
+  heightDependentScale: boolean = true,
+  plainlinessDependentSmoothing: boolean = true,
+  plainlinessDependentScale: boolean = true
 ): Float32Array {
   const data = new Float32Array(segments * segments);
   if (scaleH === 0) {
@@ -45,7 +53,13 @@ export function improvedMap(
         rawShift, 
         exponent, 
         persistenceIncByHeight,
-        plainliness_frequency
+        plainliness_frequency,
+        largestOctaveExponentOne,
+        octaveDependentExponent,
+        heightDependentExponent,
+        heightDependentScale,
+        plainlinessDependentSmoothing,
+        plainlinessDependentScale
       );
       
       data[i * segments + j] = noise * scaleV + verticalShift;
@@ -77,7 +91,25 @@ type Octave = {
 
 
 // Combines multiple octaves of noise
-function octave(heightNoiseFunction: (x: number, y: number) => number, x: number, y: number, octaves: Octave[], rawScaleV: number, rawShift: number, exponent: number, persistenceIncByHeight: number, plainliness_frequency: number) {
+function octave(
+  heightNoiseFunction: (x: number, y: number) => number, 
+  x: number, 
+  y: number, 
+  octaves: Octave[], 
+  rawScaleV: number, 
+  rawShift: number, 
+  exponent: number, 
+  persistenceIncByHeight: number, 
+  plainliness_frequency: number,
+
+  // Enable improvements
+  largestOctaveExponentOne: boolean = true,
+  octaveDependentExponent: boolean = true,
+  heightDependentExponent: boolean = true,
+  heightDependentScale: boolean = true,
+  plainlinessDependentSmoothing: boolean = true,
+  plainlinessDependentScale: boolean = true,
+) {
   let sum = 0;
   
   // Sample noise at different frequencies for terrain features
@@ -88,27 +120,32 @@ function octave(heightNoiseFunction: (x: number, y: number) => number, x: number
   // Combine all octaves with varying influence
   for (let i = 0; i < octaves.length; i++) {
     // Adjust exponent based on height and octave level
-    const exp = i === octaves.length - 1 
+    const exp = (i === octaves.length - 1 || !largestOctaveExponentOne)
       ? 1 // The largest octave won't make spikey mountains, but instead smoothly shift terrain vertically, so that flat lands at different altitudes are possible
       : lerp(1, // Finer octaves are less spikey
-        lerp(0, exponent, roughHeight**3), // The lower the terrain, the less of an effect the finer octaves have
-        (i/octaves.length)**3);
+        lerp(0, exponent, heightDependentExponent ? roughHeight**3 : 1), // The lower the terrain, the less of an effect the finer octaves have
+        octaveDependentExponent ? (i/octaves.length)**3 : 1);
       
     // Sample noise
     const h1 = 0.5 + heightNoiseFunction(x * octaves[i].frequency, y * octaves[i].frequency) / 2; // 0 to 1
 
     // Smooth height values if plainliness is high
-    // const h2 = lerp(h1, fade(h1**2), plainliness) * 2 - 1; // -1 to 1
-    const h2 = h1 * 2 - 1; // -1 to 1
+    const h2 = plainlinessDependentSmoothing ? 
+      lerp(h1, fade(h1**2), plainliness) * 2 - 1 : // -1 to 1
+      h1 * 2 - 1; // just unnormalize the value without transformation
 
     // Make fine octaves less influential if plainliness is high
-    const h3 = lerp(h2, 0, plainliness*(1-i/octaves.length)); // -1 to 1
+    const h3 = plainlinessDependentScale ?
+      lerp(h2, 0, plainliness*(1-i/octaves.length)) : // -1 to 1
+      h2; // pass through value
 
     // Apply exponent and octave amplitude
     const h4 = (((h3 + 1) * rawScaleV + rawShift) ** exp) * octaves[i].amplitude;
     
     // Combine with amplitude and persistence adjustments
-    const h5 = h4 *lerp(1, persistenceIncByHeight * roughHeight, (1 - i/octaves.length)**3);
+    const h5 = heightDependentScale ?
+      h4 *lerp(1, persistenceIncByHeight * roughHeight, (1 - i/octaves.length)**3) :
+      h4; // pass through value
 
     sum += h5;
   }

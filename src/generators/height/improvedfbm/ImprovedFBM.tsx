@@ -23,6 +23,12 @@ type ImprovedFBMState = {
   persistenceScale: number;
   persistenceIncByHeight: number;
   plainliness_frequency: number;
+  largestOctaveExponentOne: boolean;
+  octaveDependentExponent: boolean;
+  heightDependentExponent: boolean;
+  heightDependentScale: boolean;
+  plainlinessDependentSmoothing: boolean;
+  plainlinessDependentScale: boolean;
 };
 
 export class ImprovedFBM extends Generator<Float32Array> {
@@ -53,7 +59,13 @@ export class ImprovedFBM extends Generator<Float32Array> {
       lacunarityScale: 0.96,
       persistenceScale: 1.06,
       persistenceIncByHeight: 1,
-      plainliness_frequency: 0.3
+      plainliness_frequency: 0.3,
+      largestOctaveExponentOne: true,
+      octaveDependentExponent: true,
+      heightDependentExponent: true,
+      heightDependentScale: true,
+      plainlinessDependentSmoothing: true,
+      plainlinessDependentScale: true
     };
   }
 
@@ -97,7 +109,13 @@ export class ImprovedFBM extends Generator<Float32Array> {
       lacunarityScale, 
       persistenceScale, 
       persistenceIncByHeight,
-      plainliness_frequency 
+      plainliness_frequency,
+      largestOctaveExponentOne,
+      octaveDependentExponent,
+      heightDependentExponent,
+      heightDependentScale,
+      plainlinessDependentSmoothing,
+      plainlinessDependentScale
     } = this.state;
 
     return improvedMap(
@@ -117,7 +135,13 @@ export class ImprovedFBM extends Generator<Float32Array> {
       lacunarityScale,
       persistenceScale,
       persistenceIncByHeight,
-      plainliness_frequency
+      plainliness_frequency,
+      largestOctaveExponentOne,
+      octaveDependentExponent,
+      heightDependentExponent,
+      heightDependentScale,
+      plainlinessDependentSmoothing,
+      plainlinessDependentScale
     );
   }
 
@@ -142,7 +166,13 @@ export class ImprovedFBM extends Generator<Float32Array> {
       lacunarityScale, 
       persistenceScale, 
       persistenceIncByHeight,
-      plainliness_frequency 
+      plainliness_frequency,
+      largestOctaveExponentOne,
+      octaveDependentExponent,
+      heightDependentExponent,
+      heightDependentScale,
+      plainlinessDependentSmoothing,
+      plainlinessDependentScale
     } = this.state;
 
     return (
@@ -284,6 +314,60 @@ export class ImprovedFBM extends Generator<Float32Array> {
             step="0.01"
             value={plainliness_frequency}
             onChange={(e) => this.updateState({ plainliness_frequency: parseFloat(e.target.value) }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Largest Octave Exp=1:</label>
+          <input
+            type="checkbox"
+            checked={largestOctaveExponentOne}
+            onChange={(e) => this.updateState({ largestOctaveExponentOne: e.target.checked }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Octave-Dependent Exp:</label>
+          <input
+            type="checkbox"
+            checked={octaveDependentExponent}
+            onChange={(e) => this.updateState({ octaveDependentExponent: e.target.checked }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Height-Dependent Exp:</label>
+          <input
+            type="checkbox"
+            checked={heightDependentExponent}
+            onChange={(e) => this.updateState({ heightDependentExponent: e.target.checked }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Height-Dependent Scale:</label>
+          <input
+            type="checkbox"
+            checked={heightDependentScale}
+            onChange={(e) => this.updateState({ heightDependentScale: e.target.checked }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Plainliness Smoothing:</label>
+          <input
+            type="checkbox"
+            checked={plainlinessDependentSmoothing}
+            onChange={(e) => this.updateState({ plainlinessDependentSmoothing: e.target.checked }, onUpdate)}
+          />
+        </div>
+
+        <div>
+          <label>Plainliness Scale:</label>
+          <input
+            type="checkbox"
+            checked={plainlinessDependentScale}
+            onChange={(e) => this.updateState({ plainlinessDependentScale: e.target.checked }, onUpdate)}
           />
         </div>
       </div>
