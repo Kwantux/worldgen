@@ -317,6 +317,9 @@ export class ImprovedFBM extends Generator<Float32Array> {
           />
         </div>
 
+        <br />
+        <h2><strong>Improvements:</strong></h2>
+
         <div>
           <label>Largest Octave Exp=1:</label>
           <input
